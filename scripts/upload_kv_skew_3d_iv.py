@@ -92,17 +92,42 @@ def upload_bulk(
             raise
 
 
-def build_entries(payload: dict, *, namespace_name: str, namespace_id: str) -> list[dict[str, str]]:
+def load_matrices(payload: dict, payload_path: Path) -> dict[str, dict]:
+    """Load per-ticker matrices from payload or data/matrices/{as_of}/*.json."""
+    matrices = dict(payload.get("matrices") or {})
+    as_of = str(payload.get("as_of") or "")
+    matrix_dir = payload_path.parent / "matrices" / as_of
+    if matrix_dir.is_dir():
+        for path in sorted(matrix_dir.glob("*.json")):
+            try:
+                matrices[path.stem.upper()] = json.loads(path.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                continue
+    return matrices
+
+
+def build_entries(
+    payload: dict,
+    *,
+    namespace_name: str,
+    namespace_id: str,
+    payload_path: Path,
+) -> list[dict[str, str]]:
     as_of = str(payload["as_of"])
     uploaded_at = datetime.now(timezone.utc).isoformat()
     surface_symbols = list(payload.get("surface_symbols") or [])
     surfaces = payload.get("surfaces") or {}
+    matrices = load_matrices(payload, payload_path)
+    matrix_symbols = sorted(
+        set(payload.get("matrix_symbols") or []) | set(matrices.keys())
+    )
 
     summary = {
         "namespace": namespace_name,
         "namespace_id": namespace_id,
         "as_of": as_of,
         "source_options_kv": payload.get("namespace") or "alpaca-options-matrix-backup",
+        "source_updated_at": payload.get("source_updated_at"),
         "exported_universe": payload.get("exported_universe"),
         "kv_tickers": payload.get("kv_tickers"),
         "eligible": payload.get("eligible"),
@@ -113,6 +138,8 @@ def build_entries(payload: dict, *, namespace_name: str, namespace_id: str) -> l
         "pricing": payload.get("pricing"),
         "surface_note": payload.get("surface_note"),
         "surface_symbols": surface_symbols,
+        "matrix_symbols": matrix_symbols,
+        "matrix_index": payload.get("matrix_index") or {},
         "updated_at": uploaded_at,
     }
 
@@ -139,11 +166,16 @@ def build_entries(payload: dict, *, namespace_name: str, namespace_id: str) -> l
         "date_count": 1,
         "latest_date": as_of,
         "surface_symbols": surface_symbols,
+        "matrix_symbols": matrix_symbols,
         "source": "alpaca-options-matrix-backup + HV/BS enrichment",
+        "source_namespace": "alpaca-options-matrix-backup",
+        "source_namespace_id": payload.get("namespace_id")
+        or "e290dbe341d3496aac5e47d17042b3e5",
         "updated_at": uploaded_at,
         "kv_key_format": {
             "summary": "as_of/{YYYY-MM-DD}/summary",
             "surface": "as_of/{YYYY-MM-DD}/surface/{SYMBOL}",
+            "matrix": "as_of/{YYYY-MM-DD}/matrix/{SYMBOL}",
             "overpriced": "as_of/{YYYY-MM-DD}/overpriced",
             "underpriced": "as_of/{YYYY-MM-DD}/underpriced",
             "ticker_bias": "as_of/{YYYY-MM-DD}/ticker-bias",
@@ -177,6 +209,14 @@ def build_entries(payload: dict, *, namespace_name: str, namespace_id: str) -> l
                 "value": compact_json(surface_payload),
             }
         )
+
+    for symbol, matrix in matrices.items():
+        entries.append(
+            {
+                "key": f"as_of/{as_of}/matrix/{symbol.upper()}",
+                "value": compact_json(matrix),
+            }
+        )
     return entries
 
 
@@ -208,10 +248,12 @@ def main() -> None:
         payload,
         namespace_name=args.namespace_name,
         namespace_id=args.namespace_id,
+        payload_path=payload_path,
     )
+    matrix_count = sum(1 for e in entries if "/matrix/" in e["key"])
     print(
         f"Prepared {len(entries)} keys for as_of={payload.get('as_of')} "
-        f"surfaces={len(payload.get('surface_symbols') or [])}",
+        f"surfaces={len(payload.get('surface_symbols') or [])} matrices={matrix_count}",
         flush=True,
     )
     if args.dry_run:
