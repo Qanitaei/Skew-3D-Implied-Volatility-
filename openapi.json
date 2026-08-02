@@ -1,0 +1,332 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Skew 3D Implied Volatility API",
+    "description": "3D implied-volatility surface and mispricing research data from Cloudflare KV namespace Skew-3D-Implied-Volatility.\n\nPrimary pattern:\n- `GET /v1/as_of/{date}` — day summary (eligible contracts, ticker bias)\n- `GET /v1/as_of/{date}/surface/{symbol}` — DTE × moneyness IV surface grid\n- `GET /v1/as_of/{date}/overpriced` — mark ≫ HV Black-Scholes contracts\n- `GET /v1/as_of/{date}/underpriced` — mark ≪ HV Black-Scholes contracts\n- `GET /v1/as_of/latest/...` — latest as-of date aliases\n\nImport OpenAPI: https://skew-3d-implied-volatility-shiny-darkness-9ebb.2s6m8rz8fc.workers.dev/openapi.json",
+    "version": "1.0.0",
+    "contact": {
+      "name": "skew-3d-implied-volatility-shiny-darkness-9ebb",
+      "url": "https://skew-3d-implied-volatility-shiny-darkness-9ebb.2s6m8rz8fc.workers.dev"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://skew-3d-implied-volatility-shiny-darkness-9ebb.2s6m8rz8fc.workers.dev",
+      "description": "Workers KV production (Skew-3D-Implied-Volatility)"
+    }
+  ],
+  "tags": [
+    { "name": "meta", "description": "Health, OpenAPI, retrieval catalog, KV keys" },
+    { "name": "catalog", "description": "As-of dates and surface tickers" },
+    { "name": "surface", "description": "3D IV surface grids and mispricing tables" }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": ["meta"],
+        "summary": "OpenAPI root",
+        "operationId": "getOpenApiRoot",
+        "responses": {
+          "200": {
+            "description": "OpenAPI 3.0 document",
+            "content": { "application/json": { "schema": { "type": "object" } } }
+          }
+        }
+      }
+    },
+    "/openapi.json": {
+      "get": {
+        "tags": ["meta"],
+        "summary": "OpenAPI 3.0 specification",
+        "operationId": "getOpenApiJson",
+        "responses": {
+          "200": {
+            "description": "OpenAPI 3.0 document",
+            "content": { "application/json": { "schema": { "type": "object" } } }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": ["meta"],
+        "summary": "Worker and KV binding health",
+        "operationId": "getHealth",
+        "responses": {
+          "200": {
+            "description": "Health payload",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HealthResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/retrievals": {
+      "get": {
+        "tags": ["meta"],
+        "summary": "Retrieval catalog for all documented endpoints",
+        "operationId": "getRetrievals",
+        "responses": {
+          "200": {
+            "description": "Catalog",
+            "content": { "application/json": { "schema": { "type": "object" } } }
+          }
+        }
+      }
+    },
+    "/keys": {
+      "get": {
+        "tags": ["meta"],
+        "summary": "List KV keys (optional prefix)",
+        "operationId": "listKeys",
+        "parameters": [
+          {
+            "name": "prefix",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "KV key prefix filter"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer", "default": 1000, "maximum": 1000 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Key listing",
+            "content": { "application/json": { "schema": { "type": "object" } } }
+          }
+        }
+      }
+    },
+    "/dates": {
+      "get": {
+        "tags": ["catalog"],
+        "summary": "List available as-of dates",
+        "operationId": "listAsOfDates",
+        "responses": {
+          "200": {
+            "description": "Date catalog",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DatesResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tickers": {
+      "get": {
+        "tags": ["catalog"],
+        "summary": "Global manifest / surface tickers",
+        "operationId": "getGlobalManifest",
+        "responses": {
+          "200": {
+            "description": "Manifest",
+            "content": { "application/json": { "schema": { "type": "object" } } }
+          }
+        }
+      }
+    },
+    "/v1/as_of/{date}": {
+      "get": {
+        "tags": ["surface"],
+        "summary": "Day summary for IV / mispricing analysis",
+        "operationId": "getAsOfSummary",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "enum": ["latest"], "pattern": "^(\\d{4}-\\d{2}-\\d{2}|latest)$" },
+            "description": "As-of date YYYY-MM-DD or latest"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Summary payload",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AsOfSummary" }
+              }
+            }
+          },
+          "404": { "description": "Missing date" }
+        }
+      }
+    },
+    "/v1/as_of/{date}/surface/{symbol}": {
+      "get": {
+        "tags": ["surface"],
+        "summary": "3D IV surface grid for one ticker",
+        "operationId": "getSurface",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Surface grid",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SurfaceResponse" }
+              }
+            }
+          },
+          "404": { "description": "Missing surface" }
+        }
+      }
+    },
+    "/v1/as_of/{date}/overpriced": {
+      "get": {
+        "tags": ["surface"],
+        "summary": "Overpriced contracts (mark ≫ HV BS)",
+        "operationId": "getOverpriced",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Overpriced table",
+            "content": { "application/json": { "schema": { "type": "object" } } }
+          },
+          "404": { "description": "Missing date" }
+        }
+      }
+    },
+    "/v1/as_of/{date}/underpriced": {
+      "get": {
+        "tags": ["surface"],
+        "summary": "Underpriced contracts (mark ≪ HV BS)",
+        "operationId": "getUnderpriced",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Underpriced table",
+            "content": { "application/json": { "schema": { "type": "object" } } }
+          },
+          "404": { "description": "Missing date" }
+        }
+      }
+    },
+    "/v1/as_of/{date}/ticker-bias": {
+      "get": {
+        "tags": ["surface"],
+        "summary": "Ticker-level mean edge rankings",
+        "operationId": "getTickerBias",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ticker bias tables",
+            "content": { "application/json": { "schema": { "type": "object" } } }
+          },
+          "404": { "description": "Missing date" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "kv_connected": { "type": "boolean" },
+          "namespace": { "type": "string" },
+          "namespace_id": { "type": "string" },
+          "latest_date": { "type": "string", "nullable": true },
+          "date_count": { "type": "integer" },
+          "openapi": { "type": "string", "example": "3.0.3" }
+        }
+      },
+      "DatesResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "date_count": { "type": "integer" },
+          "dates": { "type": "array", "items": { "type": "string" } },
+          "latest_date": { "type": "string", "nullable": true }
+        }
+      },
+      "AsOfSummary": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "as_of": { "type": "string" },
+          "namespace": { "type": "string" },
+          "surface_symbols": { "type": "array", "items": { "type": "string" } },
+          "eligible": { "type": "integer" },
+          "kv_tickers": { "type": "integer" },
+          "pricing": { "type": "string" },
+          "filter": { "type": "string" }
+        }
+      },
+      "SurfacePoint": {
+        "type": "object",
+        "properties": {
+          "dte": { "type": "number" },
+          "strike": { "type": "number" },
+          "mny": { "type": "number", "description": "Strike / spot moneyness" },
+          "iv": { "type": "number", "description": "Market IV percent" },
+          "edge": { "type": "number", "description": "(mark-bs)/bs percent" },
+          "exp": { "type": "string" }
+        }
+      },
+      "SurfaceResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "as_of": { "type": "string" },
+          "symbol": { "type": "string" },
+          "point_count": { "type": "integer" },
+          "points": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/SurfacePoint" }
+          },
+          "axes": {
+            "type": "object",
+            "properties": {
+              "x": { "type": "string", "example": "dte_days" },
+              "y": { "type": "string", "example": "moneyness_k_over_s" },
+              "z": { "type": "string", "example": "market_iv_percent" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

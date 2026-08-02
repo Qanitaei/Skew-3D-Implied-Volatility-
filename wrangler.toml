@@ -1,0 +1,7 @@
+name = "skew-3d-implied-volatility-shiny-darkness-9ebb"
+main = "src/index.js"
+compatibility_date = "2024-11-01"
+
+[[kv_namespaces]]
+binding = "SKEW_IV"
+id = "6090feecea284af3a313401f8d0ef0a9"
