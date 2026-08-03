@@ -284,15 +284,15 @@ export const DISPLAY_HTML = `<!DOCTYPE html>
     <div class="lists">
       <section class="panel">
         <div class="panel-head">
-          <h2>Top overpriced</h2>
-          <p>Universe leaders</p>
+          <h2 id="overTitle">Top overpriced</h2>
+          <p id="overSub">Selected ticker + universe</p>
         </div>
         <div class="scroll" id="overMount"></div>
       </section>
       <section class="panel">
         <div class="panel-head">
-          <h2>Top underpriced</h2>
-          <p>Universe leaders</p>
+          <h2 id="underTitle">Top underpriced</h2>
+          <p id="underSub">Selected ticker + universe</p>
         </div>
         <div class="scroll" id="underMount"></div>
       </section>
@@ -379,17 +379,32 @@ export const DISPLAY_HTML = `<!DOCTYPE html>
       mount.innerHTML = html;
     }
 
-    function renderRanks(over, under) {
+    function renderRanks(matrix, universeOver, universeUnder) {
+      const sym = matrix?.symbol || "";
+      const localOver = (matrix?.overpriced || []).map((r) => ({ ...r, symbol: sym }));
+      const localUnder = (matrix?.underpriced || []).map((r) => ({ ...r, symbol: sym }));
+      // Prefer selected-ticker strike/expiration leaders; fall back to universe tables.
+      const over = localOver.length ? localOver : (universeOver || []);
+      const under = localUnder.length ? localUnder : (universeUnder || []);
+      $("overTitle").textContent = localOver.length ? (sym + " overpriced") : "Top overpriced";
+      $("underTitle").textContent = localUnder.length ? (sym + " underpriced") : "Top underpriced";
+      $("overSub").textContent = localOver.length
+        ? "By expiration × strike for " + sym
+        : "Universe leaders";
+      $("underSub").textContent = localUnder.length
+        ? "By expiration × strike for " + sym
+        : "Universe leaders";
+
       const mk = (rows, cls) => {
         if (!rows || !rows.length) return "<p style='padding:1rem;color:var(--muted)'>None</p>";
         let html = "<table class='rank'><thead><tr><th>Sym</th><th>Exp</th><th>K</th><th>CP</th><th>Edge</th><th>Mark</th><th>BS</th></tr></thead><tbody>";
         for (const r of rows.slice(0, 25)) {
           html += "<tr>" +
-            "<td><strong>" + r.symbol + "</strong></td>" +
+            "<td><strong>" + (r.symbol || sym) + "</strong></td>" +
             "<td>" + fmtExp(r.exp) + "</td>" +
             "<td>" + r.strike + "</td>" +
             "<td>" + r.cp + "</td>" +
-            "<td class='" + cls + "'>" + (r.edge_pct > 0 ? "+" : "") + r.edge_pct + "%</td>" +
+            "<td class='" + cls + "'>" + (r.edge_pct > 0 ? "+" : "") + Number(r.edge_pct).toFixed(2) + "%</td>" +
             "<td>" + r.mark + "</td>" +
             "<td>" + r.bs + "</td>" +
             "</tr>";
@@ -438,7 +453,7 @@ export const DISPLAY_HTML = `<!DOCTYPE html>
         if (!matrix.success) throw new Error(matrix.error || "Matrix failed");
         state.matrix = matrix;
         renderMatrix(matrix);
-        renderRanks(over.contracts || [], under.contracts || []);
+        renderRanks(matrix, over.contracts || [], under.contracts || []);
         setStatus("Live from " + (matrix.source_key || "KV") + " · " + (matrix.eligible || 0) + " eligible contracts");
       } catch (err) {
         setStatus(String(err.message || err), true);

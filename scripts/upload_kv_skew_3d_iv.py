@@ -112,14 +112,17 @@ def build_entries(
     namespace_name: str,
     namespace_id: str,
     payload_path: Path,
+    include_matrices: bool = True,
 ) -> list[dict[str, str]]:
     as_of = str(payload["as_of"])
     uploaded_at = datetime.now(timezone.utc).isoformat()
     surface_symbols = list(payload.get("surface_symbols") or [])
     surfaces = payload.get("surfaces") or {}
-    matrices = load_matrices(payload, payload_path)
+    matrices = load_matrices(payload, payload_path) if include_matrices else {}
     matrix_symbols = sorted(
-        set(payload.get("matrix_symbols") or []) | set(matrices.keys())
+        set(payload.get("matrix_symbols") or [])
+        | set((payload.get("matrix_index") or {}).keys())
+        | set(matrices.keys())
     )
 
     summary = {
@@ -231,6 +234,11 @@ def main() -> None:
     p.add_argument("--credentials", default="")
     p.add_argument("--dry-run", action="store_true")
     p.add_argument("--batch-size", type=int, default=25)
+    p.add_argument(
+        "--skip-matrices",
+        action="store_true",
+        help="Upload rankings/surfaces only (live matrix API reads ALPACA_MATRIX)",
+    )
     args = p.parse_args()
 
     account_id, api_token = load_credentials(
@@ -249,6 +257,7 @@ def main() -> None:
         namespace_name=args.namespace_name,
         namespace_id=args.namespace_id,
         payload_path=payload_path,
+        include_matrices=not args.skip_matrices,
     )
     matrix_count = sum(1 for e in entries if "/matrix/" in e["key"])
     print(

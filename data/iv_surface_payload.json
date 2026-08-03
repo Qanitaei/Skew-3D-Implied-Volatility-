@@ -3,7 +3,7 @@
   "namespace": "alpaca-options-matrix-backup",
   "namespace_id": "e290dbe341d3496aac5e47d17042b3e5",
   "source_updated_at": "2026-08-01T20:50:56.440847+00:00",
-  "pulled_at": "2026-08-02T01:42:17.957087+00:00",
+  "pulled_at": "2026-08-03T00:04:06.502073+00:00",
   "kv_tickers": 93,
   "exported_universe": 93,
   "empty_no_chain": [],
@@ -2060,6 +2060,845 @@
       "pct_under": 27.31
     }
   ],
+  "matrix_index": {
+    "AAPL": {
+      "eligible": 398,
+      "expiration_count": 14,
+      "strike_count": 22,
+      "overpriced_count": 336,
+      "underpriced_count": 62,
+      "spot": 308.725,
+      "path": "matrices/2026-07-31/AAPL.json"
+    },
+    "ABNB": {
+      "eligible": 72,
+      "expiration_count": 9,
+      "strike_count": 15,
+      "overpriced_count": 72,
+      "underpriced_count": 0,
+      "spot": 151.42,
+      "path": "matrices/2026-07-31/ABNB.json"
+    },
+    "ADBE": {
+      "eligible": 174,
+      "expiration_count": 11,
+      "strike_count": 19,
+      "overpriced_count": 166,
+      "underpriced_count": 8,
+      "spot": 250.36,
+      "path": "matrices/2026-07-31/ADBE.json"
+    },
+    "ADI": {
+      "eligible": 83,
+      "expiration_count": 8,
+      "strike_count": 24,
+      "overpriced_count": 82,
+      "underpriced_count": 1,
+      "spot": 367.49,
+      "path": "matrices/2026-07-31/ADI.json"
+    },
+    "ADP": {
+      "eligible": 58,
+      "expiration_count": 8,
+      "strike_count": 17,
+      "overpriced_count": 52,
+      "underpriced_count": 6,
+      "spot": 266.55,
+      "path": "matrices/2026-07-31/ADP.json"
+    },
+    "AEP": {
+      "eligible": 24,
+      "expiration_count": 5,
+      "strike_count": 5,
+      "overpriced_count": 20,
+      "underpriced_count": 4,
+      "spot": 127.86,
+      "path": "matrices/2026-07-31/AEP.json"
+    },
+    "ALAB": {
+      "eligible": 144,
+      "expiration_count": 10,
+      "strike_count": 24,
+      "overpriced_count": 142,
+      "underpriced_count": 2,
+      "spot": 311.0,
+      "path": "matrices/2026-07-31/ALAB.json"
+    },
+    "AMAT": {
+      "eligible": 207,
+      "expiration_count": 10,
+      "strike_count": 41,
+      "overpriced_count": 207,
+      "underpriced_count": 0,
+      "spot": 508.08,
+      "path": "matrices/2026-07-31/AMAT.json"
+    },
+    "AMD": {
+      "eligible": 502,
+      "expiration_count": 14,
+      "strike_count": 38,
+      "overpriced_count": 416,
+      "underpriced_count": 85,
+      "spot": 476.03,
+      "path": "matrices/2026-07-31/AMD.json"
+    },
+    "AMGN": {
+      "eligible": 99,
+      "expiration_count": 10,
+      "strike_count": 18,
+      "overpriced_count": 92,
+      "underpriced_count": 7,
+      "spot": 385.21,
+      "path": "matrices/2026-07-31/AMGN.json"
+    },
+    "AMZN": {
+      "eligible": 365,
+      "expiration_count": 14,
+      "strike_count": 22,
+      "overpriced_count": 156,
+      "underpriced_count": 209,
+      "spot": 271.465,
+      "path": "matrices/2026-07-31/AMZN.json"
+    },
+    "APP": {
+      "eligible": 164,
+      "expiration_count": 10,
+      "strike_count": 30,
+      "overpriced_count": 148,
+      "underpriced_count": 16,
+      "spot": 395.81,
+      "path": "matrices/2026-07-31/APP.json"
+    },
+    "ARGX": {
+      "eligible": 6,
+      "expiration_count": 3,
+      "strike_count": 5,
+      "overpriced_count": 6,
+      "underpriced_count": 0,
+      "spot": 853.24,
+      "path": "matrices/2026-07-31/ARGX.json"
+    },
+    "ARM": {
+      "eligible": 149,
+      "expiration_count": 11,
+      "strike_count": 19,
+      "overpriced_count": 139,
+      "underpriced_count": 10,
+      "spot": 239.46,
+      "path": "matrices/2026-07-31/ARM.json"
+    },
+    "ASML": {
+      "eligible": 230,
+      "expiration_count": 11,
+      "strike_count": 68,
+      "overpriced_count": 225,
+      "underpriced_count": 5,
+      "spot": 1631.83,
+      "path": "matrices/2026-07-31/ASML.json"
+    },
+    "AVGO": {
+      "eligible": 338,
+      "expiration_count": 14,
+      "strike_count": 31,
+      "overpriced_count": 277,
+      "underpriced_count": 61,
+      "spot": 389.3,
+      "path": "matrices/2026-07-31/AVGO.json"
+    },
+    "BKNG": {
+      "eligible": 115,
+      "expiration_count": 10,
+      "strike_count": 27,
+      "overpriced_count": 115,
+      "underpriced_count": 0,
+      "spot": 192.885,
+      "path": "matrices/2026-07-31/BKNG.json"
+    },
+    "BKR": {
+      "eligible": 15,
+      "expiration_count": 5,
+      "strike_count": 3,
+      "overpriced_count": 14,
+      "underpriced_count": 1,
+      "spot": 60.475,
+      "path": "matrices/2026-07-31/BKR.json"
+    },
+    "CCEP": {
+      "eligible": 1,
+      "expiration_count": 1,
+      "strike_count": 1,
+      "overpriced_count": 1,
+      "underpriced_count": 0,
+      "spot": 109.44,
+      "path": "matrices/2026-07-31/CCEP.json"
+    },
+    "CDNS": {
+      "eligible": 66,
+      "expiration_count": 9,
+      "strike_count": 22,
+      "overpriced_count": 65,
+      "underpriced_count": 1,
+      "spot": 339.98,
+      "path": "matrices/2026-07-31/CDNS.json"
+    },
+    "CEG": {
+      "eligible": 83,
+      "expiration_count": 9,
+      "strike_count": 18,
+      "overpriced_count": 83,
+      "underpriced_count": 0,
+      "spot": 262.75,
+      "path": "matrices/2026-07-31/CEG.json"
+    },
+    "CMCSA": {
+      "eligible": 55,
+      "expiration_count": 10,
+      "strike_count": 8,
+      "overpriced_count": 49,
+      "underpriced_count": 6,
+      "spot": 23.965,
+      "path": "matrices/2026-07-31/CMCSA.json"
+    },
+    "CME": {
+      "eligible": 49,
+      "expiration_count": 9,
+      "strike_count": 14,
+      "overpriced_count": 46,
+      "underpriced_count": 3,
+      "spot": 267.83,
+      "path": "matrices/2026-07-31/CME.json"
+    },
+    "COST": {
+      "eligible": 387,
+      "expiration_count": 11,
+      "strike_count": 53,
+      "overpriced_count": 379,
+      "underpriced_count": 8,
+      "spot": 951.61,
+      "path": "matrices/2026-07-31/COST.json"
+    },
+    "CRDO": {
+      "eligible": 119,
+      "expiration_count": 11,
+      "strike_count": 17,
+      "overpriced_count": 115,
+      "underpriced_count": 4,
+      "spot": 207.14,
+      "path": "matrices/2026-07-31/CRDO.json"
+    },
+    "CRWD": {
+      "eligible": 227,
+      "expiration_count": 11,
+      "strike_count": 27,
+      "overpriced_count": 226,
+      "underpriced_count": 1,
+      "spot": 190.86,
+      "path": "matrices/2026-07-31/CRWD.json"
+    },
+    "CRWV": {
+      "eligible": 203,
+      "expiration_count": 11,
+      "strike_count": 20,
+      "overpriced_count": 188,
+      "underpriced_count": 15,
+      "spot": 71.815,
+      "path": "matrices/2026-07-31/CRWV.json"
+    },
+    "CSCO": {
+      "eligible": 136,
+      "expiration_count": 10,
+      "strike_count": 22,
+      "overpriced_count": 130,
+      "underpriced_count": 6,
+      "spot": 116.0,
+      "path": "matrices/2026-07-31/CSCO.json"
+    },
+    "CSX": {
+      "eligible": 40,
+      "expiration_count": 9,
+      "strike_count": 9,
+      "overpriced_count": 35,
+      "underpriced_count": 5,
+      "spot": 50.38,
+      "path": "matrices/2026-07-31/CSX.json"
+    },
+    "CTAS": {
+      "eligible": 34,
+      "expiration_count": 8,
+      "strike_count": 13,
+      "overpriced_count": 33,
+      "underpriced_count": 1,
+      "spot": 204.59,
+      "path": "matrices/2026-07-31/CTAS.json"
+    },
+    "DASH": {
+      "eligible": 61,
+      "expiration_count": 9,
+      "strike_count": 13,
+      "overpriced_count": 61,
+      "underpriced_count": 0,
+      "spot": 196.26,
+      "path": "matrices/2026-07-31/DASH.json"
+    },
+    "DDOG": {
+      "eligible": 106,
+      "expiration_count": 10,
+      "strike_count": 17,
+      "overpriced_count": 106,
+      "underpriced_count": 0,
+      "spot": 267.97,
+      "path": "matrices/2026-07-31/DDOG.json"
+    },
+    "EA": {
+      "eligible": 13,
+      "expiration_count": 8,
+      "strike_count": 4,
+      "overpriced_count": 0,
+      "underpriced_count": 13,
+      "spot": 209.89,
+      "path": "matrices/2026-07-31/EA.json"
+    },
+    "EBAY": {
+      "eligible": 43,
+      "expiration_count": 9,
+      "strike_count": 19,
+      "overpriced_count": 42,
+      "underpriced_count": 1,
+      "spot": 114.01,
+      "path": "matrices/2026-07-31/EBAY.json"
+    },
+    "EQIX": {
+      "eligible": 31,
+      "expiration_count": 5,
+      "strike_count": 17,
+      "overpriced_count": 31,
+      "underpriced_count": 0,
+      "spot": 1019.28,
+      "path": "matrices/2026-07-31/EQIX.json"
+    },
+    "FANG": {
+      "eligible": 26,
+      "expiration_count": 4,
+      "strike_count": 6,
+      "overpriced_count": 23,
+      "underpriced_count": 3,
+      "spot": 203.0,
+      "path": "matrices/2026-07-31/FANG.json"
+    },
+    "FAST": {
+      "eligible": 12,
+      "expiration_count": 4,
+      "strike_count": 3,
+      "overpriced_count": 8,
+      "underpriced_count": 4,
+      "spot": 47.715,
+      "path": "matrices/2026-07-31/FAST.json"
+    },
+    "FLEX": {
+      "eligible": 27,
+      "expiration_count": 4,
+      "strike_count": 5,
+      "overpriced_count": 27,
+      "underpriced_count": 0,
+      "spot": 113.73,
+      "path": "matrices/2026-07-31/FLEX.json"
+    },
+    "FTNT": {
+      "eligible": 92,
+      "expiration_count": 10,
+      "strike_count": 13,
+      "overpriced_count": 85,
+      "underpriced_count": 7,
+      "spot": 161.89,
+      "path": "matrices/2026-07-31/FTNT.json"
+    },
+    "GILD": {
+      "eligible": 63,
+      "expiration_count": 10,
+      "strike_count": 16,
+      "overpriced_count": 63,
+      "underpriced_count": 0,
+      "spot": 130.19,
+      "path": "matrices/2026-07-31/GILD.json"
+    },
+    "GOOG": {
+      "eligible": 309,
+      "expiration_count": 11,
+      "strike_count": 24,
+      "overpriced_count": 280,
+      "underpriced_count": 29,
+      "spot": 356.64,
+      "path": "matrices/2026-07-31/GOOG.json"
+    },
+    "GOOGL": {
+      "eligible": 418,
+      "expiration_count": 14,
+      "strike_count": 26,
+      "overpriced_count": 328,
+      "underpriced_count": 90,
+      "spot": 356.06,
+      "path": "matrices/2026-07-31/GOOGL.json"
+    },
+    "HON": {
+      "eligible": 38,
+      "expiration_count": 8,
+      "strike_count": 13,
+      "overpriced_count": 0,
+      "underpriced_count": 38,
+      "spot": 243.095,
+      "path": "matrices/2026-07-31/HON.json"
+    },
+    "HOOD": {
+      "eligible": 206,
+      "expiration_count": 11,
+      "strike_count": 18,
+      "overpriced_count": 67,
+      "underpriced_count": 139,
+      "spot": 86.57,
+      "path": "matrices/2026-07-31/HOOD.json"
+    },
+    "IBKR": {
+      "eligible": 73,
+      "expiration_count": 8,
+      "strike_count": 17,
+      "overpriced_count": 53,
+      "underpriced_count": 20,
+      "spot": 87.97,
+      "path": "matrices/2026-07-31/IBKR.json"
+    },
+    "INTC": {
+      "eligible": 366,
+      "expiration_count": 14,
+      "strike_count": 23,
+      "overpriced_count": 259,
+      "underpriced_count": 107,
+      "spot": 90.21,
+      "path": "matrices/2026-07-31/INTC.json"
+    },
+    "INTU": {
+      "eligible": 115,
+      "expiration_count": 10,
+      "strike_count": 26,
+      "overpriced_count": 112,
+      "underpriced_count": 3,
+      "spot": 316.12,
+      "path": "matrices/2026-07-31/INTU.json"
+    },
+    "ISRG": {
+      "eligible": 131,
+      "expiration_count": 10,
+      "strike_count": 24,
+      "overpriced_count": 85,
+      "underpriced_count": 46,
+      "spot": 353.34,
+      "path": "matrices/2026-07-31/ISRG.json"
+    },
+    "KLAC": {
+      "eligible": 97,
+      "expiration_count": 5,
+      "strike_count": 24,
+      "overpriced_count": 96,
+      "underpriced_count": 1,
+      "spot": 182.68,
+      "path": "matrices/2026-07-31/KLAC.json"
+    },
+    "LIN": {
+      "eligible": 131,
+      "expiration_count": 6,
+      "strike_count": 19,
+      "overpriced_count": 131,
+      "underpriced_count": 0,
+      "spot": 478.465,
+      "path": "matrices/2026-07-31/LIN.json"
+    },
+    "LITE": {
+      "eligible": 173,
+      "expiration_count": 10,
+      "strike_count": 36,
+      "overpriced_count": 161,
+      "underpriced_count": 12,
+      "spot": 713.72,
+      "path": "matrices/2026-07-31/LITE.json"
+    },
+    "LRCX": {
+      "eligible": 172,
+      "expiration_count": 10,
+      "strike_count": 23,
+      "overpriced_count": 165,
+      "underpriced_count": 7,
+      "spot": 293.49,
+      "path": "matrices/2026-07-31/LRCX.json"
+    },
+    "MAR": {
+      "eligible": 47,
+      "expiration_count": 8,
+      "strike_count": 17,
+      "overpriced_count": 47,
+      "underpriced_count": 0,
+      "spot": 372.88,
+      "path": "matrices/2026-07-31/MAR.json"
+    },
+    "MCHP": {
+      "eligible": 58,
+      "expiration_count": 8,
+      "strike_count": 17,
+      "overpriced_count": 58,
+      "underpriced_count": 0,
+      "spot": 74.28,
+      "path": "matrices/2026-07-31/MCHP.json"
+    },
+    "MDLZ": {
+      "eligible": 20,
+      "expiration_count": 5,
+      "strike_count": 9,
+      "overpriced_count": 18,
+      "underpriced_count": 2,
+      "spot": 62.31,
+      "path": "matrices/2026-07-31/MDLZ.json"
+    },
+    "MELI": {
+      "eligible": 114,
+      "expiration_count": 10,
+      "strike_count": 30,
+      "overpriced_count": 114,
+      "underpriced_count": 0,
+      "spot": 1878.37,
+      "path": "matrices/2026-07-31/MELI.json"
+    },
+    "META": {
+      "eligible": 616,
+      "expiration_count": 14,
+      "strike_count": 44,
+      "overpriced_count": 417,
+      "underpriced_count": 199,
+      "spot": 556.6,
+      "path": "matrices/2026-07-31/META.json"
+    },
+    "MNST": {
+      "eligible": 25,
+      "expiration_count": 4,
+      "strike_count": 7,
+      "overpriced_count": 25,
+      "underpriced_count": 0,
+      "spot": 96.38,
+      "path": "matrices/2026-07-31/MNST.json"
+    },
+    "MPWR": {
+      "eligible": 35,
+      "expiration_count": 4,
+      "strike_count": 16,
+      "overpriced_count": 35,
+      "underpriced_count": 0,
+      "spot": 1424.59,
+      "path": "matrices/2026-07-31/MPWR.json"
+    },
+    "MRVL": {
+      "eligible": 190,
+      "expiration_count": 11,
+      "strike_count": 15,
+      "overpriced_count": 181,
+      "underpriced_count": 9,
+      "spot": 187.61,
+      "path": "matrices/2026-07-31/MRVL.json"
+    },
+    "MSFT": {
+      "eligible": 544,
+      "expiration_count": 14,
+      "strike_count": 33,
+      "overpriced_count": 302,
+      "underpriced_count": 241,
+      "spot": 464.7,
+      "path": "matrices/2026-07-31/MSFT.json"
+    },
+    "MU": {
+      "eligible": 622,
+      "expiration_count": 14,
+      "strike_count": 41,
+      "overpriced_count": 585,
+      "underpriced_count": 37,
+      "spot": 823.21,
+      "path": "matrices/2026-07-31/MU.json"
+    },
+    "NBIS": {
+      "eligible": 174,
+      "expiration_count": 11,
+      "strike_count": 15,
+      "overpriced_count": 174,
+      "underpriced_count": 0,
+      "spot": 190.31,
+      "path": "matrices/2026-07-31/NBIS.json"
+    },
+    "NDAQ": {
+      "eligible": 12,
+      "expiration_count": 6,
+      "strike_count": 9,
+      "overpriced_count": 11,
+      "underpriced_count": 1,
+      "spot": 94.19,
+      "path": "matrices/2026-07-31/NDAQ.json"
+    },
+    "NFLX": {
+      "eligible": 227,
+      "expiration_count": 11,
+      "strike_count": 17,
+      "overpriced_count": 165,
+      "underpriced_count": 62,
+      "spot": 71.695,
+      "path": "matrices/2026-07-31/NFLX.json"
+    },
+    "NTES": {
+      "eligible": 11,
+      "expiration_count": 3,
+      "strike_count": 6,
+      "overpriced_count": 10,
+      "underpriced_count": 1,
+      "spot": 133.3,
+      "path": "matrices/2026-07-31/NTES.json"
+    },
+    "NVDA": {
+      "eligible": 316,
+      "expiration_count": 14,
+      "strike_count": 35,
+      "overpriced_count": 273,
+      "underpriced_count": 43,
+      "spot": 200.74,
+      "path": "matrices/2026-07-31/NVDA.json"
+    },
+    "NXPI": {
+      "eligible": 27,
+      "expiration_count": 5,
+      "strike_count": 5,
+      "overpriced_count": 26,
+      "underpriced_count": 1,
+      "spot": 229.4,
+      "path": "matrices/2026-07-31/NXPI.json"
+    },
+    "ORLY": {
+      "eligible": 25,
+      "expiration_count": 3,
+      "strike_count": 16,
+      "overpriced_count": 23,
+      "underpriced_count": 2,
+      "spot": 89.34,
+      "path": "matrices/2026-07-31/ORLY.json"
+    },
+    "PANW": {
+      "eligible": 168,
+      "expiration_count": 10,
+      "strike_count": 26,
+      "overpriced_count": 167,
+      "underpriced_count": 1,
+      "spot": 331.84,
+      "path": "matrices/2026-07-31/PANW.json"
+    },
+    "PCAR": {
+      "eligible": 11,
+      "expiration_count": 3,
+      "strike_count": 7,
+      "overpriced_count": 7,
+      "underpriced_count": 4,
+      "spot": 132.69,
+      "path": "matrices/2026-07-31/PCAR.json"
+    },
+    "PDD": {
+      "eligible": 122,
+      "expiration_count": 10,
+      "strike_count": 19,
+      "overpriced_count": 88,
+      "underpriced_count": 34,
+      "spot": 88.55,
+      "path": "matrices/2026-07-31/PDD.json"
+    },
+    "PEP": {
+      "eligible": 132,
+      "expiration_count": 11,
+      "strike_count": 21,
+      "overpriced_count": 126,
+      "underpriced_count": 6,
+      "spot": 139.605,
+      "path": "matrices/2026-07-31/PEP.json"
+    },
+    "PLTR": {
+      "eligible": 270,
+      "expiration_count": 11,
+      "strike_count": 25,
+      "overpriced_count": 270,
+      "underpriced_count": 0,
+      "spot": 123.03,
+      "path": "matrices/2026-07-31/PLTR.json"
+    },
+    "QCOM": {
+      "eligible": 157,
+      "expiration_count": 11,
+      "strike_count": 21,
+      "overpriced_count": 149,
+      "underpriced_count": 8,
+      "spot": 147.7,
+      "path": "matrices/2026-07-31/QCOM.json"
+    },
+    "REGN": {
+      "eligible": 59,
+      "expiration_count": 10,
+      "strike_count": 22,
+      "overpriced_count": 15,
+      "underpriced_count": 44,
+      "spot": 762.72,
+      "path": "matrices/2026-07-31/REGN.json"
+    },
+    "RKLB": {
+      "eligible": 149,
+      "expiration_count": 10,
+      "strike_count": 18,
+      "overpriced_count": 122,
+      "underpriced_count": 27,
+      "spot": 64.94,
+      "path": "matrices/2026-07-31/RKLB.json"
+    },
+    "ROST": {
+      "eligible": 38,
+      "expiration_count": 8,
+      "strike_count": 12,
+      "overpriced_count": 37,
+      "underpriced_count": 1,
+      "spot": 251.0,
+      "path": "matrices/2026-07-31/ROST.json"
+    },
+    "SBUX": {
+      "eligible": 118,
+      "expiration_count": 11,
+      "strike_count": 19,
+      "overpriced_count": 83,
+      "underpriced_count": 35,
+      "spot": 105.23,
+      "path": "matrices/2026-07-31/SBUX.json"
+    },
+    "SHOP": {
+      "eligible": 159,
+      "expiration_count": 11,
+      "strike_count": 21,
+      "overpriced_count": 159,
+      "underpriced_count": 0,
+      "spot": 117.08,
+      "path": "matrices/2026-07-31/SHOP.json"
+    },
+    "SNDK": {
+      "eligible": 360,
+      "expiration_count": 11,
+      "strike_count": 49,
+      "overpriced_count": 337,
+      "underpriced_count": 23,
+      "spot": 1214.05,
+      "path": "matrices/2026-07-31/SNDK.json"
+    },
+    "SNPS": {
+      "eligible": 87,
+      "expiration_count": 8,
+      "strike_count": 25,
+      "overpriced_count": 2,
+      "underpriced_count": 85,
+      "spot": 388.82,
+      "path": "matrices/2026-07-31/SNPS.json"
+    },
+    "SNY": {
+      "eligible": 20,
+      "expiration_count": 4,
+      "strike_count": 3,
+      "overpriced_count": 3,
+      "underpriced_count": 17,
+      "spot": 43.075,
+      "path": "matrices/2026-07-31/SNY.json"
+    },
+    "STX": {
+      "eligible": 205,
+      "expiration_count": 10,
+      "strike_count": 38,
+      "overpriced_count": 202,
+      "underpriced_count": 3,
+      "spot": 855.57,
+      "path": "matrices/2026-07-31/STX.json"
+    },
+    "TER": {
+      "eligible": 93,
+      "expiration_count": 8,
+      "strike_count": 22,
+      "overpriced_count": 93,
+      "underpriced_count": 0,
+      "spot": 367.56,
+      "path": "matrices/2026-07-31/TER.json"
+    },
+    "TMUS": {
+      "eligible": 84,
+      "expiration_count": 10,
+      "strike_count": 11,
+      "overpriced_count": 80,
+      "underpriced_count": 4,
+      "spot": 172.69,
+      "path": "matrices/2026-07-31/TMUS.json"
+    },
+    "TSLA": {
+      "eligible": 419,
+      "expiration_count": 14,
+      "strike_count": 24,
+      "overpriced_count": 151,
+      "underpriced_count": 268,
+      "spot": 311.19,
+      "path": "matrices/2026-07-31/TSLA.json"
+    },
+    "TXN": {
+      "eligible": 105,
+      "expiration_count": 10,
+      "strike_count": 21,
+      "overpriced_count": 105,
+      "underpriced_count": 0,
+      "spot": 275.81,
+      "path": "matrices/2026-07-31/TXN.json"
+    },
+    "VRTX": {
+      "eligible": 48,
+      "expiration_count": 10,
+      "strike_count": 19,
+      "overpriced_count": 40,
+      "underpriced_count": 8,
+      "spot": 477.02,
+      "path": "matrices/2026-07-31/VRTX.json"
+    },
+    "WBD": {
+      "eligible": 33,
+      "expiration_count": 8,
+      "strike_count": 8,
+      "overpriced_count": 3,
+      "underpriced_count": 30,
+      "spot": 26.29,
+      "path": "matrices/2026-07-31/WBD.json"
+    },
+    "WDC": {
+      "eligible": 242,
+      "expiration_count": 11,
+      "strike_count": 39,
+      "overpriced_count": 242,
+      "underpriced_count": 0,
+      "spot": 544.61,
+      "path": "matrices/2026-07-31/WDC.json"
+    },
+    "WMT": {
+      "eligible": 150,
+      "expiration_count": 11,
+      "strike_count": 20,
+      "overpriced_count": 139,
+      "underpriced_count": 11,
+      "spot": 111.23,
+      "path": "matrices/2026-07-31/WMT.json"
+    },
+    "XEL": {
+      "eligible": 7,
+      "expiration_count": 5,
+      "strike_count": 3,
+      "overpriced_count": 7,
+      "underpriced_count": 0,
+      "spot": 78.23,
+      "path": "matrices/2026-07-31/XEL.json"
+    }
+  },
   "matrix_symbols": [
     "AAPL",
     "ABNB",
@@ -9202,751 +10041,5 @@
     "WDC",
     "WMT",
     "XEL"
-  ],
-  "matrix_index": {
-    "AAPL": {
-      "eligible": 398,
-      "expiration_count": 14,
-      "strike_count": 22,
-      "overpriced_count": 336,
-      "underpriced_count": 62,
-      "spot": 308.725
-    },
-    "ABNB": {
-      "eligible": 72,
-      "expiration_count": 9,
-      "strike_count": 15,
-      "overpriced_count": 72,
-      "underpriced_count": 0,
-      "spot": 151.42
-    },
-    "ADBE": {
-      "eligible": 174,
-      "expiration_count": 11,
-      "strike_count": 19,
-      "overpriced_count": 166,
-      "underpriced_count": 8,
-      "spot": 250.36
-    },
-    "ADI": {
-      "eligible": 83,
-      "expiration_count": 8,
-      "strike_count": 24,
-      "overpriced_count": 82,
-      "underpriced_count": 1,
-      "spot": 367.49
-    },
-    "ADP": {
-      "eligible": 58,
-      "expiration_count": 8,
-      "strike_count": 17,
-      "overpriced_count": 52,
-      "underpriced_count": 6,
-      "spot": 266.55
-    },
-    "AEP": {
-      "eligible": 24,
-      "expiration_count": 5,
-      "strike_count": 5,
-      "overpriced_count": 20,
-      "underpriced_count": 4,
-      "spot": 127.86
-    },
-    "ALAB": {
-      "eligible": 144,
-      "expiration_count": 10,
-      "strike_count": 24,
-      "overpriced_count": 142,
-      "underpriced_count": 2,
-      "spot": 311.0
-    },
-    "AMAT": {
-      "eligible": 207,
-      "expiration_count": 10,
-      "strike_count": 41,
-      "overpriced_count": 207,
-      "underpriced_count": 0,
-      "spot": 508.08
-    },
-    "AMD": {
-      "eligible": 502,
-      "expiration_count": 14,
-      "strike_count": 38,
-      "overpriced_count": 416,
-      "underpriced_count": 85,
-      "spot": 476.03
-    },
-    "AMGN": {
-      "eligible": 99,
-      "expiration_count": 10,
-      "strike_count": 18,
-      "overpriced_count": 92,
-      "underpriced_count": 7,
-      "spot": 385.21
-    },
-    "AMZN": {
-      "eligible": 365,
-      "expiration_count": 14,
-      "strike_count": 22,
-      "overpriced_count": 156,
-      "underpriced_count": 209,
-      "spot": 271.465
-    },
-    "APP": {
-      "eligible": 164,
-      "expiration_count": 10,
-      "strike_count": 30,
-      "overpriced_count": 148,
-      "underpriced_count": 16,
-      "spot": 395.81
-    },
-    "ARGX": {
-      "eligible": 6,
-      "expiration_count": 3,
-      "strike_count": 5,
-      "overpriced_count": 6,
-      "underpriced_count": 0,
-      "spot": 853.24
-    },
-    "ARM": {
-      "eligible": 149,
-      "expiration_count": 11,
-      "strike_count": 19,
-      "overpriced_count": 139,
-      "underpriced_count": 10,
-      "spot": 239.46
-    },
-    "ASML": {
-      "eligible": 230,
-      "expiration_count": 11,
-      "strike_count": 68,
-      "overpriced_count": 225,
-      "underpriced_count": 5,
-      "spot": 1631.83
-    },
-    "AVGO": {
-      "eligible": 338,
-      "expiration_count": 14,
-      "strike_count": 31,
-      "overpriced_count": 277,
-      "underpriced_count": 61,
-      "spot": 389.3
-    },
-    "BKNG": {
-      "eligible": 115,
-      "expiration_count": 10,
-      "strike_count": 27,
-      "overpriced_count": 115,
-      "underpriced_count": 0,
-      "spot": 192.885
-    },
-    "BKR": {
-      "eligible": 15,
-      "expiration_count": 5,
-      "strike_count": 3,
-      "overpriced_count": 14,
-      "underpriced_count": 1,
-      "spot": 60.475
-    },
-    "CCEP": {
-      "eligible": 1,
-      "expiration_count": 1,
-      "strike_count": 1,
-      "overpriced_count": 1,
-      "underpriced_count": 0,
-      "spot": 109.44
-    },
-    "CDNS": {
-      "eligible": 66,
-      "expiration_count": 9,
-      "strike_count": 22,
-      "overpriced_count": 65,
-      "underpriced_count": 1,
-      "spot": 339.98
-    },
-    "CEG": {
-      "eligible": 83,
-      "expiration_count": 9,
-      "strike_count": 18,
-      "overpriced_count": 83,
-      "underpriced_count": 0,
-      "spot": 262.75
-    },
-    "CMCSA": {
-      "eligible": 55,
-      "expiration_count": 10,
-      "strike_count": 8,
-      "overpriced_count": 49,
-      "underpriced_count": 6,
-      "spot": 23.965
-    },
-    "CME": {
-      "eligible": 49,
-      "expiration_count": 9,
-      "strike_count": 14,
-      "overpriced_count": 46,
-      "underpriced_count": 3,
-      "spot": 267.83
-    },
-    "COST": {
-      "eligible": 387,
-      "expiration_count": 11,
-      "strike_count": 53,
-      "overpriced_count": 379,
-      "underpriced_count": 8,
-      "spot": 951.61
-    },
-    "CRDO": {
-      "eligible": 119,
-      "expiration_count": 11,
-      "strike_count": 17,
-      "overpriced_count": 115,
-      "underpriced_count": 4,
-      "spot": 207.14
-    },
-    "CRWD": {
-      "eligible": 227,
-      "expiration_count": 11,
-      "strike_count": 27,
-      "overpriced_count": 226,
-      "underpriced_count": 1,
-      "spot": 190.86
-    },
-    "CRWV": {
-      "eligible": 203,
-      "expiration_count": 11,
-      "strike_count": 20,
-      "overpriced_count": 188,
-      "underpriced_count": 15,
-      "spot": 71.815
-    },
-    "CSCO": {
-      "eligible": 136,
-      "expiration_count": 10,
-      "strike_count": 22,
-      "overpriced_count": 130,
-      "underpriced_count": 6,
-      "spot": 116.0
-    },
-    "CSX": {
-      "eligible": 40,
-      "expiration_count": 9,
-      "strike_count": 9,
-      "overpriced_count": 35,
-      "underpriced_count": 5,
-      "spot": 50.38
-    },
-    "CTAS": {
-      "eligible": 34,
-      "expiration_count": 8,
-      "strike_count": 13,
-      "overpriced_count": 33,
-      "underpriced_count": 1,
-      "spot": 204.59
-    },
-    "DASH": {
-      "eligible": 61,
-      "expiration_count": 9,
-      "strike_count": 13,
-      "overpriced_count": 61,
-      "underpriced_count": 0,
-      "spot": 196.26
-    },
-    "DDOG": {
-      "eligible": 106,
-      "expiration_count": 10,
-      "strike_count": 17,
-      "overpriced_count": 106,
-      "underpriced_count": 0,
-      "spot": 267.97
-    },
-    "EA": {
-      "eligible": 13,
-      "expiration_count": 8,
-      "strike_count": 4,
-      "overpriced_count": 0,
-      "underpriced_count": 13,
-      "spot": 209.89
-    },
-    "EBAY": {
-      "eligible": 43,
-      "expiration_count": 9,
-      "strike_count": 19,
-      "overpriced_count": 42,
-      "underpriced_count": 1,
-      "spot": 114.01
-    },
-    "EQIX": {
-      "eligible": 31,
-      "expiration_count": 5,
-      "strike_count": 17,
-      "overpriced_count": 31,
-      "underpriced_count": 0,
-      "spot": 1019.28
-    },
-    "FANG": {
-      "eligible": 26,
-      "expiration_count": 4,
-      "strike_count": 6,
-      "overpriced_count": 23,
-      "underpriced_count": 3,
-      "spot": 203.0
-    },
-    "FAST": {
-      "eligible": 12,
-      "expiration_count": 4,
-      "strike_count": 3,
-      "overpriced_count": 8,
-      "underpriced_count": 4,
-      "spot": 47.715
-    },
-    "FLEX": {
-      "eligible": 27,
-      "expiration_count": 4,
-      "strike_count": 5,
-      "overpriced_count": 27,
-      "underpriced_count": 0,
-      "spot": 113.73
-    },
-    "FTNT": {
-      "eligible": 92,
-      "expiration_count": 10,
-      "strike_count": 13,
-      "overpriced_count": 85,
-      "underpriced_count": 7,
-      "spot": 161.89
-    },
-    "GILD": {
-      "eligible": 63,
-      "expiration_count": 10,
-      "strike_count": 16,
-      "overpriced_count": 63,
-      "underpriced_count": 0,
-      "spot": 130.19
-    },
-    "GOOG": {
-      "eligible": 309,
-      "expiration_count": 11,
-      "strike_count": 24,
-      "overpriced_count": 280,
-      "underpriced_count": 29,
-      "spot": 356.64
-    },
-    "GOOGL": {
-      "eligible": 418,
-      "expiration_count": 14,
-      "strike_count": 26,
-      "overpriced_count": 328,
-      "underpriced_count": 90,
-      "spot": 356.06
-    },
-    "HON": {
-      "eligible": 38,
-      "expiration_count": 8,
-      "strike_count": 13,
-      "overpriced_count": 0,
-      "underpriced_count": 38,
-      "spot": 243.095
-    },
-    "HOOD": {
-      "eligible": 206,
-      "expiration_count": 11,
-      "strike_count": 18,
-      "overpriced_count": 67,
-      "underpriced_count": 139,
-      "spot": 86.57
-    },
-    "IBKR": {
-      "eligible": 73,
-      "expiration_count": 8,
-      "strike_count": 17,
-      "overpriced_count": 53,
-      "underpriced_count": 20,
-      "spot": 87.97
-    },
-    "INTC": {
-      "eligible": 366,
-      "expiration_count": 14,
-      "strike_count": 23,
-      "overpriced_count": 259,
-      "underpriced_count": 107,
-      "spot": 90.21
-    },
-    "INTU": {
-      "eligible": 115,
-      "expiration_count": 10,
-      "strike_count": 26,
-      "overpriced_count": 112,
-      "underpriced_count": 3,
-      "spot": 316.12
-    },
-    "ISRG": {
-      "eligible": 131,
-      "expiration_count": 10,
-      "strike_count": 24,
-      "overpriced_count": 85,
-      "underpriced_count": 46,
-      "spot": 353.34
-    },
-    "KLAC": {
-      "eligible": 97,
-      "expiration_count": 5,
-      "strike_count": 24,
-      "overpriced_count": 96,
-      "underpriced_count": 1,
-      "spot": 182.68
-    },
-    "LIN": {
-      "eligible": 131,
-      "expiration_count": 6,
-      "strike_count": 19,
-      "overpriced_count": 131,
-      "underpriced_count": 0,
-      "spot": 478.465
-    },
-    "LITE": {
-      "eligible": 173,
-      "expiration_count": 10,
-      "strike_count": 36,
-      "overpriced_count": 161,
-      "underpriced_count": 12,
-      "spot": 713.72
-    },
-    "LRCX": {
-      "eligible": 172,
-      "expiration_count": 10,
-      "strike_count": 23,
-      "overpriced_count": 165,
-      "underpriced_count": 7,
-      "spot": 293.49
-    },
-    "MAR": {
-      "eligible": 47,
-      "expiration_count": 8,
-      "strike_count": 17,
-      "overpriced_count": 47,
-      "underpriced_count": 0,
-      "spot": 372.88
-    },
-    "MCHP": {
-      "eligible": 58,
-      "expiration_count": 8,
-      "strike_count": 17,
-      "overpriced_count": 58,
-      "underpriced_count": 0,
-      "spot": 74.28
-    },
-    "MDLZ": {
-      "eligible": 20,
-      "expiration_count": 5,
-      "strike_count": 9,
-      "overpriced_count": 18,
-      "underpriced_count": 2,
-      "spot": 62.31
-    },
-    "MELI": {
-      "eligible": 114,
-      "expiration_count": 10,
-      "strike_count": 30,
-      "overpriced_count": 114,
-      "underpriced_count": 0,
-      "spot": 1878.37
-    },
-    "META": {
-      "eligible": 616,
-      "expiration_count": 14,
-      "strike_count": 44,
-      "overpriced_count": 417,
-      "underpriced_count": 199,
-      "spot": 556.6
-    },
-    "MNST": {
-      "eligible": 25,
-      "expiration_count": 4,
-      "strike_count": 7,
-      "overpriced_count": 25,
-      "underpriced_count": 0,
-      "spot": 96.38
-    },
-    "MPWR": {
-      "eligible": 35,
-      "expiration_count": 4,
-      "strike_count": 16,
-      "overpriced_count": 35,
-      "underpriced_count": 0,
-      "spot": 1424.59
-    },
-    "MRVL": {
-      "eligible": 190,
-      "expiration_count": 11,
-      "strike_count": 15,
-      "overpriced_count": 181,
-      "underpriced_count": 9,
-      "spot": 187.61
-    },
-    "MSFT": {
-      "eligible": 544,
-      "expiration_count": 14,
-      "strike_count": 33,
-      "overpriced_count": 302,
-      "underpriced_count": 241,
-      "spot": 464.7
-    },
-    "MU": {
-      "eligible": 622,
-      "expiration_count": 14,
-      "strike_count": 41,
-      "overpriced_count": 585,
-      "underpriced_count": 37,
-      "spot": 823.21
-    },
-    "NBIS": {
-      "eligible": 174,
-      "expiration_count": 11,
-      "strike_count": 15,
-      "overpriced_count": 174,
-      "underpriced_count": 0,
-      "spot": 190.31
-    },
-    "NDAQ": {
-      "eligible": 12,
-      "expiration_count": 6,
-      "strike_count": 9,
-      "overpriced_count": 11,
-      "underpriced_count": 1,
-      "spot": 94.19
-    },
-    "NFLX": {
-      "eligible": 227,
-      "expiration_count": 11,
-      "strike_count": 17,
-      "overpriced_count": 165,
-      "underpriced_count": 62,
-      "spot": 71.695
-    },
-    "NTES": {
-      "eligible": 11,
-      "expiration_count": 3,
-      "strike_count": 6,
-      "overpriced_count": 10,
-      "underpriced_count": 1,
-      "spot": 133.3
-    },
-    "NVDA": {
-      "eligible": 316,
-      "expiration_count": 14,
-      "strike_count": 35,
-      "overpriced_count": 273,
-      "underpriced_count": 43,
-      "spot": 200.74
-    },
-    "NXPI": {
-      "eligible": 27,
-      "expiration_count": 5,
-      "strike_count": 5,
-      "overpriced_count": 26,
-      "underpriced_count": 1,
-      "spot": 229.4
-    },
-    "ORLY": {
-      "eligible": 25,
-      "expiration_count": 3,
-      "strike_count": 16,
-      "overpriced_count": 23,
-      "underpriced_count": 2,
-      "spot": 89.34
-    },
-    "PANW": {
-      "eligible": 168,
-      "expiration_count": 10,
-      "strike_count": 26,
-      "overpriced_count": 167,
-      "underpriced_count": 1,
-      "spot": 331.84
-    },
-    "PCAR": {
-      "eligible": 11,
-      "expiration_count": 3,
-      "strike_count": 7,
-      "overpriced_count": 7,
-      "underpriced_count": 4,
-      "spot": 132.69
-    },
-    "PDD": {
-      "eligible": 122,
-      "expiration_count": 10,
-      "strike_count": 19,
-      "overpriced_count": 88,
-      "underpriced_count": 34,
-      "spot": 88.55
-    },
-    "PEP": {
-      "eligible": 132,
-      "expiration_count": 11,
-      "strike_count": 21,
-      "overpriced_count": 126,
-      "underpriced_count": 6,
-      "spot": 139.605
-    },
-    "PLTR": {
-      "eligible": 270,
-      "expiration_count": 11,
-      "strike_count": 25,
-      "overpriced_count": 270,
-      "underpriced_count": 0,
-      "spot": 123.03
-    },
-    "QCOM": {
-      "eligible": 157,
-      "expiration_count": 11,
-      "strike_count": 21,
-      "overpriced_count": 149,
-      "underpriced_count": 8,
-      "spot": 147.7
-    },
-    "REGN": {
-      "eligible": 59,
-      "expiration_count": 10,
-      "strike_count": 22,
-      "overpriced_count": 15,
-      "underpriced_count": 44,
-      "spot": 762.72
-    },
-    "RKLB": {
-      "eligible": 149,
-      "expiration_count": 10,
-      "strike_count": 18,
-      "overpriced_count": 122,
-      "underpriced_count": 27,
-      "spot": 64.94
-    },
-    "ROST": {
-      "eligible": 38,
-      "expiration_count": 8,
-      "strike_count": 12,
-      "overpriced_count": 37,
-      "underpriced_count": 1,
-      "spot": 251.0
-    },
-    "SBUX": {
-      "eligible": 118,
-      "expiration_count": 11,
-      "strike_count": 19,
-      "overpriced_count": 83,
-      "underpriced_count": 35,
-      "spot": 105.23
-    },
-    "SHOP": {
-      "eligible": 159,
-      "expiration_count": 11,
-      "strike_count": 21,
-      "overpriced_count": 159,
-      "underpriced_count": 0,
-      "spot": 117.08
-    },
-    "SNDK": {
-      "eligible": 360,
-      "expiration_count": 11,
-      "strike_count": 49,
-      "overpriced_count": 337,
-      "underpriced_count": 23,
-      "spot": 1214.05
-    },
-    "SNPS": {
-      "eligible": 87,
-      "expiration_count": 8,
-      "strike_count": 25,
-      "overpriced_count": 2,
-      "underpriced_count": 85,
-      "spot": 388.82
-    },
-    "SNY": {
-      "eligible": 20,
-      "expiration_count": 4,
-      "strike_count": 3,
-      "overpriced_count": 3,
-      "underpriced_count": 17,
-      "spot": 43.075
-    },
-    "STX": {
-      "eligible": 205,
-      "expiration_count": 10,
-      "strike_count": 38,
-      "overpriced_count": 202,
-      "underpriced_count": 3,
-      "spot": 855.57
-    },
-    "TER": {
-      "eligible": 93,
-      "expiration_count": 8,
-      "strike_count": 22,
-      "overpriced_count": 93,
-      "underpriced_count": 0,
-      "spot": 367.56
-    },
-    "TMUS": {
-      "eligible": 84,
-      "expiration_count": 10,
-      "strike_count": 11,
-      "overpriced_count": 80,
-      "underpriced_count": 4,
-      "spot": 172.69
-    },
-    "TSLA": {
-      "eligible": 419,
-      "expiration_count": 14,
-      "strike_count": 24,
-      "overpriced_count": 151,
-      "underpriced_count": 268,
-      "spot": 311.19
-    },
-    "TXN": {
-      "eligible": 105,
-      "expiration_count": 10,
-      "strike_count": 21,
-      "overpriced_count": 105,
-      "underpriced_count": 0,
-      "spot": 275.81
-    },
-    "VRTX": {
-      "eligible": 48,
-      "expiration_count": 10,
-      "strike_count": 19,
-      "overpriced_count": 40,
-      "underpriced_count": 8,
-      "spot": 477.02
-    },
-    "WBD": {
-      "eligible": 33,
-      "expiration_count": 8,
-      "strike_count": 8,
-      "overpriced_count": 3,
-      "underpriced_count": 30,
-      "spot": 26.29
-    },
-    "WDC": {
-      "eligible": 242,
-      "expiration_count": 11,
-      "strike_count": 39,
-      "overpriced_count": 242,
-      "underpriced_count": 0,
-      "spot": 544.61
-    },
-    "WMT": {
-      "eligible": 150,
-      "expiration_count": 11,
-      "strike_count": 20,
-      "overpriced_count": 139,
-      "underpriced_count": 11,
-      "spot": 111.23
-    },
-    "XEL": {
-      "eligible": 7,
-      "expiration_count": 5,
-      "strike_count": 3,
-      "overpriced_count": 7,
-      "underpriced_count": 0,
-      "spot": 78.23
-    }
-  }
+  ]
 }

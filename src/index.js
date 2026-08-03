@@ -272,20 +272,27 @@ async function resolveLatestSourceDate(env) {
   const store = alpacaStore(env);
   if (!store) return null;
 
-  // Prefer explicit latest pointer if present; else scan by-date manifests.
-  const listed = await store.list({ prefix: "by-date/", limit: 1000 });
-  const dates = (listed.keys || [])
-    .map((k) => {
-      const m = /^by-date\/(\d{4}-\d{2}-\d{2})\/manifest$/.exec(k.name);
-      return m ? m[1] : null;
-    })
-    .filter(Boolean)
-    .sort();
+  // Scan by-date manifests with pagination so the newest export is never missed.
+  const dates = [];
+  let cursor;
+  do {
+    const listed = await store.list({
+      prefix: "by-date/",
+      limit: 1000,
+      cursor,
+    });
+    for (const key of listed.keys || []) {
+      const m = /^by-date\/(\d{4}-\d{2}-\d{2})\/manifest$/.exec(key.name);
+      if (m) dates.push(m[1]);
+    }
+    cursor = listed.list_complete ? undefined : listed.cursor;
+  } while (cursor);
+
+  dates.sort();
   if (dates.length) return dates[dates.length - 1];
 
-  // Fallback: read a known ticker manifest-style latest via skew summary.
-  const skewDate = await resolveDateFromSkew(env, "latest");
-  return skewDate;
+  // Fallback: derived rankings manifest on SKEW_IV.
+  return resolveDateFromSkew(env, "latest");
 }
 
 async function resolveDate(env, dateOrLatest) {

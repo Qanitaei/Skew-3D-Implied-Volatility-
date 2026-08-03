@@ -453,6 +453,27 @@ def main() -> None:
         except json.JSONDecodeError:
             pass
 
+    # Keep the committed payload lean: write full matrices beside it (gitignored).
+    out_path = Path(args.out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    matrix_dir = out_path.parent / "matrices" / as_of
+    matrix_dir.mkdir(parents=True, exist_ok=True)
+    matrix_index: dict[str, dict] = {}
+    for symbol, matrix in matrices.items():
+        (matrix_dir / f"{symbol}.json").write_text(
+            json.dumps(matrix, separators=(",", ":"), ensure_ascii=False),
+            encoding="utf-8",
+        )
+        matrix_index[symbol] = {
+            "eligible": matrix.get("eligible"),
+            "expiration_count": matrix.get("expiration_count"),
+            "strike_count": matrix.get("strike_count"),
+            "overpriced_count": matrix.get("overpriced_count"),
+            "underpriced_count": matrix.get("underpriced_count"),
+            "spot": matrix.get("spot"),
+            "path": f"matrices/{as_of}/{symbol}.json",
+        }
+
     payload = {
         "as_of": as_of,
         "namespace": SOURCE_NAMESPACE,
@@ -471,7 +492,7 @@ def main() -> None:
         "underpriced": underpriced,
         "ticker_bias_over": bias_over,
         "ticker_bias_under": bias_under,
-        "matrices": matrices,
+        "matrix_index": matrix_index,
         "matrix_symbols": sorted(matrices.keys()),
         "surfaces": surfaces,
         "surface_symbols": [s for s in surface_symbols if s in surfaces],
@@ -481,13 +502,12 @@ def main() -> None:
         "symbols": symbols,
     }
 
-    out_path = Path(args.out)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     summary = {
         "as_of": as_of,
         "eligible": len(all_rows),
         "matrix_symbols": len(matrices),
+        "matrix_dir": str(matrix_dir),
         "overpriced": len(overpriced),
         "underpriced": len(underpriced),
         "out": str(out_path),
