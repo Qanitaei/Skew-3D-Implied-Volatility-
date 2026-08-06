@@ -49,6 +49,10 @@ display stays current with the most recent options matrix pull.
 - Derived payload: `data/iv_surface_payload.json`
 - Optional matrix cache files: `data/matrices/{as_of}/{SYMBOL}.json` (gitignored)
 
-Pricing: market IV inverted from option mark via Black-Scholes-Merton; edge = `(mark − BS) / BS` using 252-day close-to-close HV.
+Pricing: edge = `(mark − BS) / BS` where BS is Black-Scholes-Merton using close-to-close HV
+(`r=4%`, `T=dte/365.25`). When the latest Alpaca export omits `bs_price`/HV, the pull script and
+live matrix API enrich from the newest prior HV-enriched export (fallback: OHLCV 252d HV).
 
 Filter: DTE 5–180, moneyness 0.90–1.10, mark & BS ≥ $0.50, OI ≥ 20 or volume ≥ 10, mark/BS in [0.25, 4].
+
+Latest integrated pull: **2026-08-05** (96 tickers sourced, 88 with HV, 15,279 eligible contracts).
