@@ -44,6 +44,9 @@ const FILTER = {
   maxRatio: 4,
 };
 
+const BS_RISK_FREE = 0.04;
+const BS_DAYCOUNT = 365.25;
+
 function corsHeaders(methods = "GET, OPTIONS") {
   return {
     "Access-Control-Allow-Origin": "*",
@@ -119,6 +122,61 @@ function cpCode(putCall) {
   return value.slice(0, 1) || "?";
 }
 
+function normCdf(x) {
+  return 0.5 * (1 + erf(x / Math.SQRT2));
+}
+
+function erf(x) {
+  // Abramowitz and Stegun approximation
+  const sign = x < 0 ? -1 : 1;
+  const ax = Math.abs(x);
+  const a1 = 0.254829592;
+  const a2 = -0.284496736;
+  const a3 = 1.421413741;
+  const a4 = -1.453152027;
+  const a5 = 1.061405429;
+  const p = 0.3275911;
+  const t = 1 / (1 + p * ax);
+  const y =
+    1 -
+    ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-ax * ax);
+  return sign * y;
+}
+
+function blackScholesPrice(spot, strike, dte, hv, putCall) {
+  if (!(spot > 0) || !(strike > 0) || !(dte > 0) || !(hv > 0)) return null;
+  const t = dte / BS_DAYCOUNT;
+  if (!(t > 0)) return null;
+  const sqrtT = Math.sqrt(t);
+  const d1 =
+    (Math.log(spot / strike) + (BS_RISK_FREE + 0.5 * hv * hv) * t) / (hv * sqrtT);
+  const d2 = d1 - hv * sqrtT;
+  const cp = cpCode(putCall);
+  if (cp === "C") {
+    return spot * normCdf(d1) - strike * Math.exp(-BS_RISK_FREE * t) * normCdf(d2);
+  }
+  if (cp === "P") {
+    return strike * Math.exp(-BS_RISK_FREE * t) * normCdf(-d2) - spot * normCdf(-d1);
+  }
+  return null;
+}
+
+function extractHv(matrix) {
+  if (!matrix) return null;
+  if (typeof matrix.historical_volatility === "number" && matrix.historical_volatility > 0) {
+    return matrix.historical_volatility;
+  }
+  for (const contract of matrix.contracts || []) {
+    if (
+      typeof contract.historical_volatility === "number" &&
+      contract.historical_volatility > 0
+    ) {
+      return contract.historical_volatility;
+    }
+  }
+  return null;
+}
+
 function marketIvPercent(contract) {
   for (const key of ["implied_volatility", "iv", "market_iv", "volatility"]) {
     const val = contract[key];
@@ -127,6 +185,27 @@ function marketIvPercent(contract) {
     }
   }
   return null;
+}
+
+function enrichContract(contract, spot, hv) {
+  const out = { ...contract };
+  if (typeof hv === "number" && hv > 0) {
+    out.historical_volatility = hv;
+    if (typeof out.bs_price !== "number") {
+      const bs = blackScholesPrice(
+        spot,
+        out.strike_price,
+        out.days_to_expiration,
+        hv,
+        out.put_call
+      );
+      if (typeof bs === "number") {
+        out.bs_price = bs;
+        out.greeks_source = "black_scholes_close_to_close_hv";
+      }
+    }
+  }
+  return out;
 }
 
 function toEligible(contract, spot, symbol) {
@@ -308,16 +387,56 @@ async function loadSourceMatrix(env, symbol, asOf) {
   return kvGet(store, `${symbol.toUpperCase()}/options_matrix/${asOf}`);
 }
 
+async function loadHvMap(env, asOf) {
+  const payload = await kvGet(skewStore(env), `as_of/${asOf}/hv-by-symbol`);
+  return payload?.hv_by_symbol || null;
+}
+
+async function resolveSymbolHv(env, symbol, source, asOf, hvMap) {
+  const sym = symbol.toUpperCase();
+  const fromSource = extractHv(source);
+  if (fromSource != null) return { hv: fromSource, source: "matrix" };
+  if (hvMap && typeof hvMap[sym] === "number" && hvMap[sym] > 0) {
+    return { hv: hvMap[sym], source: "skew_hv_map" };
+  }
+  // Walk a few prior calendar days for an enriched source matrix.
+  const base = new Date(`${asOf}T00:00:00Z`);
+  if (!Number.isNaN(base.getTime())) {
+    for (let i = 1; i <= 14; i += 1) {
+      const d = new Date(base.getTime() - i * 86400000);
+      const date = d.toISOString().slice(0, 10);
+      const prior = await loadSourceMatrix(env, sym, date);
+      const hv = extractHv(prior);
+      if (hv != null) return { hv, source: `prior:${date}` };
+    }
+  }
+  return { hv: null, source: "none" };
+}
+
 async function buildLiveMatrix(env, symbol, asOf) {
   const source = await loadSourceMatrix(env, symbol, asOf);
   if (!source) return null;
   const spot = Number(source.underlying_price || 0);
+  const hvMap = await loadHvMap(env, asOf);
+  const { hv, source: hvSource } = await resolveSymbolHv(
+    env,
+    symbol,
+    source,
+    asOf,
+    hvMap
+  );
   const rows = [];
   for (const contract of source.contracts || []) {
-    const row = toEligible(contract, spot, symbol.toUpperCase());
+    const enriched = enrichContract(contract, spot, hv);
+    const row = toEligible(enriched, spot, symbol.toUpperCase());
     if (row) rows.push(row);
   }
-  return buildMatrixPayload(symbol.toUpperCase(), asOf, source, rows, spot);
+  const payload = buildMatrixPayload(symbol.toUpperCase(), asOf, source, rows, spot);
+  payload.hv = hv;
+  payload.hv_source = hvSource;
+  payload.pricing =
+    "edge=(mark-bs)/bs; BS=BSM(HV,r=4%,T=dte/365.25); live enrichment when source omits bs_price";
+  return payload;
 }
 
 async function getMatrix(env, symbol, asOf) {

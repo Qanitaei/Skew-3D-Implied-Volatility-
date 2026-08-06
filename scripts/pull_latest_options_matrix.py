@@ -53,8 +53,12 @@ FILTER_NOTE = (
     "DTE 5-180, moneyness 0.90-1.10, mark&bs≥$0.50, OI≥20 or vol≥10, mark/bs in [0.25,4]"
 )
 PRICING_NOTE = (
-    "edge=(mark-bs)/bs; market IV inverted from mark via BSM; HV=252d close-to-close"
+    "edge=(mark-bs)/bs; BS=BSM(HV,r=4%,T=dte/365.25); "
+    "HV from matrix/prior enriched export/OHLCV 252d close-to-close"
 )
+BS_RISK_FREE = 0.04
+BS_DAYCOUNT = 365.25
+OHLCV_NAMESPACE_ID = "1e38a8deb82e419c9e3147ce5c971e4a"
 _SSL_CTX = ssl.create_default_context(cafile=certifi.where())
 
 
@@ -152,6 +156,183 @@ def cp_code(put_call: str | None) -> str:
     if value.startswith("P"):
         return "P"
     return value[:1] or "?"
+
+
+def norm_cdf(x: float) -> float:
+    return 0.5 * (1.0 + math.erf(x / math.sqrt(2.0)))
+
+
+def black_scholes_price(
+    spot: float,
+    strike: float,
+    dte: float,
+    hv: float,
+    put_call: str,
+    *,
+    rate: float = BS_RISK_FREE,
+    daycount: float = BS_DAYCOUNT,
+) -> float | None:
+    """HV Black-Scholes price matching prior Alpaca matrix enrichment."""
+    if spot <= 0 or strike <= 0 or dte <= 0 or hv <= 0:
+        return None
+    t = dte / daycount
+    if t <= 0:
+        return None
+    sigma = hv
+    sqrt_t = math.sqrt(t)
+    d1 = (math.log(spot / strike) + (rate + 0.5 * sigma * sigma) * t) / (sigma * sqrt_t)
+    d2 = d1 - sigma * sqrt_t
+    cp = cp_code(put_call)
+    if cp == "C":
+        return spot * norm_cdf(d1) - strike * math.exp(-rate * t) * norm_cdf(d2)
+    if cp == "P":
+        return strike * math.exp(-rate * t) * norm_cdf(-d2) - spot * norm_cdf(-d1)
+    return None
+
+
+def extract_hv(matrix: dict | None) -> float | None:
+    if not matrix:
+        return None
+    top = matrix.get("historical_volatility")
+    if isinstance(top, (int, float)) and top > 0:
+        return float(top)
+    for contract in matrix.get("contracts") or []:
+        hv = contract.get("historical_volatility")
+        if isinstance(hv, (int, float)) and hv > 0:
+            return float(hv)
+    return None
+
+
+def hv_from_ohlcv(
+    account_id: str,
+    token: str,
+    symbol: str,
+    as_of: str,
+    *,
+    namespace_id: str = OHLCV_NAMESPACE_ID,
+) -> float | None:
+    """252-day close-to-close HV from OHLCV daily bars when available."""
+    daily = kv_get_json(
+        account_id, namespace_id, token, f"{symbol}/ohlcv/daily_1y_daily"
+    )
+    if not daily:
+        return None
+    closes = [
+        float(bar["close"])
+        for bar in daily.get("bars") or []
+        if isinstance(bar.get("close"), (int, float))
+        and bar["close"] > 0
+        and str(bar.get("datetime") or "")[:10] <= as_of
+    ]
+    if len(closes) < 60:
+        return None
+    closes = closes[-253:]
+    rets = [math.log(closes[i] / closes[i - 1]) for i in range(1, len(closes))]
+    if not rets:
+        return None
+    var = sum(r * r for r in rets) / len(rets)
+    return math.sqrt(var) * math.sqrt(252.0)
+
+
+def resolve_prior_enriched_date(
+    account_id: str, namespace_id: str, token: str, as_of: str
+) -> str | None:
+    """Newest by-date export before as_of that still has HV/BS enrichment."""
+    keys = list_keys(account_id, namespace_id, token, prefix="by-date/")
+    dates = sorted(
+        {
+            m.group(1)
+            for key in keys
+            for m in [re.match(r"by-date/(\d{4}-\d{2}-\d{2})/manifest$", key)]
+            if m and m.group(1) < as_of
+        },
+        reverse=True,
+    )
+    for date in dates[:12]:
+        sample = kv_get_json(
+            account_id, namespace_id, token, f"NVDA/options_matrix/{date}"
+        )
+        if extract_hv(sample) is not None:
+            return date
+        sample = kv_get_json(
+            account_id, namespace_id, token, f"AAPL/options_matrix/{date}"
+        )
+        if extract_hv(sample) is not None:
+            return date
+    return None
+
+
+def build_hv_by_symbol(
+    *,
+    account_id: str,
+    namespace_id: str,
+    token: str,
+    as_of: str,
+    symbols: list[str],
+    matrices: dict[str, dict],
+) -> tuple[dict[str, float], dict[str, str]]:
+    """Resolve per-symbol HV for BS enrichment when the latest export omits it."""
+    hv_by_symbol: dict[str, float] = {}
+    hv_source: dict[str, str] = {}
+
+    for symbol, matrix in matrices.items():
+        hv = extract_hv(matrix)
+        if hv is not None:
+            hv_by_symbol[symbol] = hv
+            hv_source[symbol] = "matrix"
+
+    missing = [s for s in symbols if s not in hv_by_symbol]
+    prior_date = None
+    if missing:
+        prior_date = resolve_prior_enriched_date(
+            account_id, namespace_id, token, as_of
+        )
+        print(
+            f"HV missing for {len(missing)} symbols; prior enriched date={prior_date}",
+            flush=True,
+        )
+
+    if prior_date:
+        for idx, symbol in enumerate(missing, 1):
+            prior = kv_get_json(
+                account_id,
+                namespace_id,
+                token,
+                f"{symbol}/options_matrix/{prior_date}",
+            )
+            hv = extract_hv(prior)
+            if hv is not None:
+                hv_by_symbol[symbol] = hv
+                hv_source[symbol] = f"prior:{prior_date}"
+            if idx % 20 == 0 or idx == len(missing):
+                print(f"  prior HV lookup {idx}/{len(missing)}", flush=True)
+
+    still_missing = [s for s in symbols if s not in hv_by_symbol]
+    for symbol in still_missing:
+        hv = hv_from_ohlcv(account_id, token, symbol, as_of)
+        if hv is not None:
+            hv_by_symbol[symbol] = hv
+            hv_source[symbol] = "ohlcv_252d"
+
+    return hv_by_symbol, hv_source
+
+
+def enrich_contract_bs(contract: dict, spot: float, hv: float | None) -> dict:
+    """Return contract copy with bs_price/historical_volatility filled when possible."""
+    out = dict(contract)
+    if isinstance(hv, (int, float)) and hv > 0:
+        out["historical_volatility"] = float(hv)
+        if not isinstance(out.get("bs_price"), (int, float)):
+            dte = out.get("days_to_expiration")
+            strike = out.get("strike_price")
+            if isinstance(dte, (int, float)) and isinstance(strike, (int, float)):
+                bs = black_scholes_price(
+                    spot, float(strike), float(dte), float(hv), out.get("put_call") or ""
+                )
+                if bs is not None:
+                    out["bs_price"] = bs
+                    out["greeks_source"] = "black_scholes_close_to_close_hv"
+    return out
 
 
 def market_iv_percent(contract: dict) -> float | None:
@@ -390,7 +571,9 @@ def main() -> None:
     bias_rows: list[dict] = []
     empty_no_chain: list[str] = []
     hv_enrich_failed: list[str] = []
+    source_matrices: dict[str, dict] = {}
 
+    # First pass: load all source matrices so we can resolve HV before filtering.
     for idx, symbol in enumerate(symbols, 1):
         key = f"{symbol}/options_matrix/{as_of}"
         matrix = kv_get_json(account_id, args.namespace_id, token, key)
@@ -398,17 +581,37 @@ def main() -> None:
             empty_no_chain.append(symbol)
             print(f"[{idx}/{len(symbols)}] {symbol} missing", flush=True)
             continue
+        source_matrices[symbol] = matrix
+        print(
+            f"[{idx}/{len(symbols)}] {symbol} loaded contracts={len(matrix.get('contracts') or [])}",
+            flush=True,
+        )
 
+    hv_by_symbol, hv_source = build_hv_by_symbol(
+        account_id=account_id,
+        namespace_id=args.namespace_id,
+        token=token,
+        as_of=as_of,
+        symbols=list(source_matrices.keys()),
+        matrices=source_matrices,
+    )
+    print(
+        f"HV resolved for {len(hv_by_symbol)}/{len(source_matrices)} symbols",
+        flush=True,
+    )
+
+    for idx, (symbol, matrix) in enumerate(source_matrices.items(), 1):
         spot = float(matrix.get("underlying_price") or 0)
         contracts = matrix.get("contracts") or []
+        hv = hv_by_symbol.get(symbol)
         rows: list[dict] = []
         for contract in contracts:
-            row = eligible_contract(contract, spot)
+            enriched = enrich_contract_bs(contract, spot, hv)
+            row = eligible_contract(enriched, spot)
             if row:
                 row["symbol"] = symbol
                 rows.append(row)
 
-        hv = matrix.get("historical_volatility")
         hv_pct = None
         if isinstance(hv, (int, float)):
             hv_pct = round(hv * 100.0 if hv <= 3 else float(hv), 2)
@@ -416,7 +619,8 @@ def main() -> None:
             hv_enrich_failed.append(symbol)
 
         print(
-            f"[{idx}/{len(symbols)}] {symbol} contracts={len(contracts)} eligible={len(rows)}",
+            f"[{idx}/{len(source_matrices)}] {symbol} contracts={len(contracts)} "
+            f"eligible={len(rows)} hv_source={hv_source.get(symbol, 'none')}",
             flush=True,
         )
         if not rows:
@@ -484,6 +688,8 @@ def main() -> None:
         "exported_universe": day_manifest.get("ticker_count") or len(symbols),
         "empty_no_chain": empty_no_chain,
         "hv_enrich_failed": sorted(set(hv_enrich_failed)),
+        "hv_by_symbol": {k: round(v, 8) for k, v in sorted(hv_by_symbol.items())},
+        "hv_source_by_symbol": hv_source,
         "filter": FILTER_NOTE,
         "pricing": PRICING_NOTE,
         "eligible": len(all_rows),

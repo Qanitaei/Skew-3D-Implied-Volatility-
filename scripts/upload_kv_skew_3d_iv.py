@@ -143,6 +143,8 @@ def build_entries(
         "surface_symbols": surface_symbols,
         "matrix_symbols": matrix_symbols,
         "matrix_index": payload.get("matrix_index") or {},
+        "hv_by_symbol": payload.get("hv_by_symbol") or {},
+        "hv_source_by_symbol": payload.get("hv_source_by_symbol") or {},
         "updated_at": uploaded_at,
     }
 
@@ -182,7 +184,16 @@ def build_entries(
             "overpriced": "as_of/{YYYY-MM-DD}/overpriced",
             "underpriced": "as_of/{YYYY-MM-DD}/underpriced",
             "ticker_bias": "as_of/{YYYY-MM-DD}/ticker-bias",
+            "hv_by_symbol": "as_of/{YYYY-MM-DD}/hv-by-symbol",
         },
+    }
+
+    hv_payload = {
+        "as_of": as_of,
+        "count": len(payload.get("hv_by_symbol") or {}),
+        "hv_by_symbol": payload.get("hv_by_symbol") or {},
+        "hv_source_by_symbol": payload.get("hv_source_by_symbol") or {},
+        "definition": "annualized close-to-close HV used for live BSM enrichment",
     }
 
     entries: list[dict[str, str]] = [
@@ -191,6 +202,7 @@ def build_entries(
         {"key": f"as_of/{as_of}/overpriced", "value": compact_json(overpriced)},
         {"key": f"as_of/{as_of}/underpriced", "value": compact_json(underpriced)},
         {"key": f"as_of/{as_of}/ticker-bias", "value": compact_json(ticker_bias)},
+        {"key": f"as_of/{as_of}/hv-by-symbol", "value": compact_json(hv_payload)},
     ]
 
     for symbol in surface_symbols:
