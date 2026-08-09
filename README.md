@@ -55,4 +55,4 @@ live matrix API enrich from the newest prior HV-enriched export (fallback: OHLCV
 
 Filter: DTE 5–180, moneyness 0.90–1.10, mark & BS ≥ $0.50, OI ≥ 20 or volume ≥ 10, mark/BS in [0.25, 4].
 
-Latest integrated pull: **2026-08-07** (96 tickers sourced, 89 with HV, 15,517 eligible contracts).
+Latest integrated pull: **2026-08-07** (source `updated_at` 2026-08-08T23:11:35Z; 96 tickers sourced, 89 with HV, 13,350 eligible contracts). Dated `2026-08-08` matrix keys exist but contain null marks, so the pull skips them.
