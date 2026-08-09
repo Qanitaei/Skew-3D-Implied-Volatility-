@@ -120,6 +120,91 @@ def list_keys(
     return keys
 
 
+def matrix_has_quotes(matrix: dict | None) -> bool:
+    """True when a matrix contains usable mark/spot quotes for mispricing."""
+    if not matrix:
+        return False
+    spot = matrix.get("underlying_price")
+    if not isinstance(spot, (int, float)) or spot <= 0:
+        # Fall back to first contract underlying when top-level spot is absent.
+        for contract in matrix.get("contracts") or []:
+            spot = contract.get("underlying_price")
+            if isinstance(spot, (int, float)) and spot > 0:
+                break
+        else:
+            spot = None
+    for contract in matrix.get("contracts") or []:
+        mark = contract.get("mark")
+        if isinstance(mark, (int, float)) and mark > 0:
+            return True
+    return False
+
+
+def sample_matrix_for_date(
+    account_id: str, namespace_id: str, token: str, as_of: str
+) -> dict | None:
+    for symbol in ("AAPL", "NVDA", "MSFT", "SPY"):
+        matrix = kv_get_json(
+            account_id, namespace_id, token, f"{symbol}/options_matrix/{as_of}"
+        )
+        if matrix:
+            return matrix
+    return None
+
+
+def discover_matrix_dates(
+    account_id: str, namespace_id: str, token: str
+) -> list[str]:
+    """Collect dated matrix keys from probe symbols (manifest can lag)."""
+    dates: set[str] = set()
+    for symbol in ("AAPL", "NVDA", "MSFT", "SPY"):
+        for key in list_keys(
+            account_id, namespace_id, token, prefix=f"{symbol}/options_matrix/"
+        ):
+            m = re.match(
+                rf"{re.escape(symbol)}/options_matrix/(\d{{4}}-\d{{2}}-\d{{2}})$",
+                key,
+            )
+            if m:
+                dates.add(m.group(1))
+    return sorted(dates)
+
+
+def synthesize_manifest_from_prior(
+    account_id: str,
+    namespace_id: str,
+    token: str,
+    as_of: str,
+    prior_manifest: dict | None,
+) -> dict:
+    """Build a day manifest when by-date/{as_of}/manifest is missing."""
+    symbols = list((prior_manifest or {}).get("symbols") or [])
+    if not symbols:
+        # Probe common liquid names when no prior universe is available.
+        symbols = list(SURFACE_DEFAULTS)
+    present = []
+    for symbol in symbols:
+        matrix = kv_get_json(
+            account_id, namespace_id, token, f"{symbol}/options_matrix/{as_of}"
+        )
+        if matrix and matrix_has_quotes(matrix):
+            present.append(symbol)
+    sample = sample_matrix_for_date(account_id, namespace_id, token, as_of)
+    return {
+        "success": True,
+        "namespace": SOURCE_NAMESPACE,
+        "namespace_id": namespace_id,
+        "export_date": as_of,
+        "ticker_count": len(present),
+        "symbols": present,
+        "tickers": [{"symbol": s, "export_date": as_of} for s in present],
+        "updated_at": (sample or {}).get("exported_at"),
+        "session": (sample or {}).get("session"),
+        "synthesized": True,
+        "source": "symbol options_matrix keys (by-date manifest missing)",
+    }
+
+
 def resolve_latest_export(
     account_id: str, namespace_id: str, token: str, explicit: str | None
 ) -> tuple[str, dict]:
@@ -128,11 +213,40 @@ def resolve_latest_export(
             account_id, namespace_id, token, f"by-date/{explicit}/manifest"
         )
         if not manifest:
-            raise SystemExit(f"Missing by-date/{explicit}/manifest")
+            # Allow pulling a dated matrix set even if the day manifest lagged.
+            prior_keys = list_keys(account_id, namespace_id, token, prefix="by-date/")
+            prior_dates = sorted(
+                {
+                    m.group(1)
+                    for key in prior_keys
+                    for m in [re.match(r"by-date/(\d{4}-\d{2}-\d{2})/manifest$", key)]
+                    if m and m.group(1) < explicit
+                }
+            )
+            prior = None
+            if prior_dates:
+                prior = kv_get_json(
+                    account_id,
+                    namespace_id,
+                    token,
+                    f"by-date/{prior_dates[-1]}/manifest",
+                )
+            manifest = synthesize_manifest_from_prior(
+                account_id, namespace_id, token, explicit, prior
+            )
+            if not manifest.get("symbols"):
+                raise SystemExit(
+                    f"Missing by-date/{explicit}/manifest and no quoted matrices"
+                )
+        sample = sample_matrix_for_date(account_id, namespace_id, token, explicit)
+        if not matrix_has_quotes(sample):
+            raise SystemExit(
+                f"Export {explicit} has no usable option quotes (marks/spot empty)"
+            )
         return explicit, manifest
 
     keys = list_keys(account_id, namespace_id, token, prefix="by-date/")
-    dates = sorted(
+    manifest_dates = sorted(
         {
             m.group(1)
             for key in keys
@@ -140,13 +254,49 @@ def resolve_latest_export(
             if m
         }
     )
-    if not dates:
-        raise SystemExit("No by-date manifests found in alpaca-options-matrix-backup")
-    latest = dates[-1]
-    manifest = kv_get_json(account_id, namespace_id, token, f"by-date/{latest}/manifest")
-    if not manifest:
-        raise SystemExit(f"Missing by-date/{latest}/manifest")
-    return latest, manifest
+    matrix_dates = discover_matrix_dates(account_id, namespace_id, token)
+    candidates = sorted(set(manifest_dates) | set(matrix_dates), reverse=True)
+    if not candidates:
+        raise SystemExit("No by-date manifests or dated matrices found")
+
+    # Prefer the newest date that still has mark quotes. Empty shell exports
+    # (e.g. dated keys with null marks) are skipped in favor of the prior day.
+    for as_of in candidates:
+        sample = sample_matrix_for_date(account_id, namespace_id, token, as_of)
+        if not matrix_has_quotes(sample):
+            print(
+                f"Skipping {as_of}: sample matrix has no usable quotes",
+                flush=True,
+            )
+            continue
+        manifest = kv_get_json(
+            account_id, namespace_id, token, f"by-date/{as_of}/manifest"
+        )
+        if not manifest:
+            prior = None
+            older = [d for d in manifest_dates if d < as_of]
+            if older:
+                prior = kv_get_json(
+                    account_id,
+                    namespace_id,
+                    token,
+                    f"by-date/{older[-1]}/manifest",
+                )
+            manifest = synthesize_manifest_from_prior(
+                account_id, namespace_id, token, as_of, prior
+            )
+            print(
+                f"Synthesized manifest for {as_of} "
+                f"symbols={len(manifest.get('symbols') or [])}",
+                flush=True,
+            )
+        if not manifest.get("symbols"):
+            continue
+        return as_of, manifest
+
+    raise SystemExit(
+        "No quoted options matrix export found in alpaca-options-matrix-backup"
+    )
 
 
 def cp_code(put_call: str | None) -> str:
@@ -601,8 +751,14 @@ def main() -> None:
     )
 
     for idx, (symbol, matrix) in enumerate(source_matrices.items(), 1):
-        spot = float(matrix.get("underlying_price") or 0)
         contracts = matrix.get("contracts") or []
+        spot = float(matrix.get("underlying_price") or 0)
+        if spot <= 0:
+            for contract in contracts:
+                underlying = contract.get("underlying_price")
+                if isinstance(underlying, (int, float)) and underlying > 0:
+                    spot = float(underlying)
+                    break
         hv = hv_by_symbol.get(symbol)
         rows: list[dict] = []
         for contract in contracts:
