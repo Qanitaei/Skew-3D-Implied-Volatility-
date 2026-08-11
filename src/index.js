@@ -347,31 +347,84 @@ async function resolveDateFromSkew(env, dateOrLatest) {
   return manifest?.latest_date || (manifest?.dates || []).slice(-1)[0] || null;
 }
 
-async function resolveLatestSourceDate(env) {
-  const store = alpacaStore(env);
-  if (!store) return null;
+function matrixHasQuotes(matrix) {
+  if (!matrix) return false;
+  for (const contract of matrix.contracts || []) {
+    const mark = Number(contract?.mark);
+    if (Number.isFinite(mark) && mark > 0) return true;
+  }
+  return false;
+}
 
-  // Scan by-date manifests with pagination so the newest export is never missed.
-  const dates = [];
+async function listPrefixedKeys(store, prefix) {
+  const names = [];
+  if (!store) return names;
   let cursor;
   do {
-    const listed = await store.list({
-      prefix: "by-date/",
-      limit: 1000,
-      cursor,
-    });
-    for (const key of listed.keys || []) {
-      const m = /^by-date\/(\d{4}-\d{2}-\d{2})\/manifest$/.exec(key.name);
-      if (m) dates.push(m[1]);
-    }
+    const listed = await store.list({ prefix, limit: 1000, cursor });
+    for (const key of listed.keys || []) names.push(key.name);
     cursor = listed.list_complete ? undefined : listed.cursor;
   } while (cursor);
+  return names;
+}
 
-  dates.sort();
-  if (dates.length) return dates[dates.length - 1];
+async function discoverSourceManifestDates(store) {
+  const dates = [];
+  for (const name of await listPrefixedKeys(store, "by-date/")) {
+    const m = /^by-date\/(\d{4}-\d{2}-\d{2})\/manifest$/.exec(name);
+    if (m) dates.push(m[1]);
+  }
+  return dates;
+}
 
-  // Fallback: derived rankings manifest on SKEW_IV.
-  return resolveDateFromSkew(env, "latest");
+async function discoverSourceMatrixDates(store) {
+  const dates = new Set();
+  for (const symbol of ["AAPL", "NVDA", "MSFT", "SPY"]) {
+    const prefix = `${symbol}/options_matrix/`;
+    for (const name of await listPrefixedKeys(store, prefix)) {
+      const m = new RegExp(
+        `^${symbol}/options_matrix/(\\d{4}-\\d{2}-\\d{2})$`,
+      ).exec(name);
+      if (m) dates.add(m[1]);
+    }
+  }
+  return [...dates];
+}
+
+async function sampleSourceMatrix(store, asOf) {
+  for (const symbol of ["AAPL", "NVDA", "MSFT", "SPY"]) {
+    const matrix = await kvGet(store, `${symbol}/options_matrix/${asOf}`);
+    if (matrix) return matrix;
+  }
+  return null;
+}
+
+async function resolveLatestSourceDate(env) {
+  const store = alpacaStore(env);
+  const skewLatest = await resolveDateFromSkew(env, "latest");
+  if (!store) return skewLatest;
+
+  // by-date manifests can lag behind dated {SYM}/options_matrix/{date} keys.
+  // Prefer the newest candidate that still has usable mark quotes.
+  const manifestDates = await discoverSourceManifestDates(store);
+  const matrixDates = await discoverSourceMatrixDates(store);
+  const candidates = [
+    ...new Set([...manifestDates, ...matrixDates, skewLatest].filter(Boolean)),
+  ].sort();
+
+  for (let i = candidates.length - 1; i >= 0; i -= 1) {
+    const asOf = candidates[i];
+    const sample = await sampleSourceMatrix(store, asOf);
+    if (matrixHasQuotes(sample)) return asOf;
+    // Allow SKEW-derived latest when source sample is missing but rankings exist.
+    if (asOf === skewLatest) {
+      const summary = await kvGet(skewStore(env), summaryKey(asOf));
+      if (summary) return asOf;
+    }
+  }
+
+  if (candidates.length) return candidates[candidates.length - 1];
+  return skewLatest;
 }
 
 async function resolveDate(env, dateOrLatest) {
@@ -479,9 +532,14 @@ async function buildHealth(env, baseUrl) {
   const manifest = skew ? await kvGet(skew, GLOBAL_MANIFEST_KEY) : null;
   const sourceDate = await resolveLatestSourceDate(env);
   let sourceManifest = null;
+  let sample = null;
   if (alpaca && sourceDate) {
     sourceManifest = await kvGet(alpaca, `by-date/${sourceDate}/manifest`);
+    sample = await sampleSourceMatrix(alpaca, sourceDate);
   }
+  const dates = [
+    ...new Set([...(manifest?.dates || []), sourceDate].filter(Boolean)),
+  ].sort();
 
   return {
     success: true,
@@ -520,12 +578,17 @@ async function buildHealth(env, baseUrl) {
     namespace_id: NAMESPACE_ID,
     source_namespace: SOURCE_NAMESPACE,
     source_namespace_id: SOURCE_NAMESPACE_ID,
-    date_count: manifest?.date_count ?? (manifest?.dates || []).length,
-    dates: manifest?.dates || [],
+    date_count: dates.length,
+    dates,
     latest_date: sourceDate || manifest?.latest_date || null,
     surface_symbols: manifest?.surface_symbols || [],
     matrix_symbols: sourceManifest?.symbols || manifest?.matrix_symbols || [],
-    source_updated_at: sourceManifest?.updated_at || null,
+    source_updated_at:
+      sourceManifest?.updated_at ||
+      sample?.exported_at ||
+      manifest?.source_updated_at ||
+      null,
+    source_manifest_present: Boolean(sourceManifest),
     updated_at: manifest?.updated_at || null,
   };
 }
