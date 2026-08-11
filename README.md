@@ -55,4 +55,4 @@ live matrix API enrich from the newest prior HV-enriched export (fallback: OHLCV
 
 Filter: DTE 5–180, moneyness 0.90–1.10, mark & BS ≥ $0.50, OI ≥ 20 or volume ≥ 10, mark/BS in [0.25, 4].
 
-Latest integrated pull: **2026-08-07** (source `updated_at` 2026-08-09T23:11:22Z; 96 tickers sourced, 89 with HV, 13,350 eligible contracts). Dated `2026-08-08`/`2026-08-09` matrix keys exist but contain null marks, so the pull skips them.
+Latest integrated pull: **2026-08-10** (source `updated_at` 2026-08-10T22:06:04Z; 87 tickers sourced, 82 with HV, 13,262 eligible contracts). `by-date/2026-08-10/manifest` is missing, so the pull synthesizes the universe from dated `{SYM}/options_matrix/2026-08-10` keys (worker latest-date resolution does the same).
