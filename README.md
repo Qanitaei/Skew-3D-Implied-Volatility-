@@ -55,4 +55,4 @@ live matrix API enrich from the newest prior HV-enriched export (fallback: OHLCV
 
 Filter: DTE 5–180, moneyness 0.90–1.10, mark & BS ≥ $0.50, OI ≥ 20 or volume ≥ 10, mark/BS in [0.25, 4].
 
-Latest integrated pull: **2026-08-10** (source `updated_at` 2026-08-10T22:06:04Z; cron re-pulled 2026-08-12T00:03:44Z; 87 tickers sourced, 82 with HV, 13,262 eligible contracts). `by-date/2026-08-10/manifest` is missing, so the pull synthesizes the universe from dated `{SYM}/options_matrix/2026-08-10` keys (worker latest-date resolution does the same). No newer dated matrix keys (`2026-08-11`+) were present in `alpaca-options-matrix-backup` at pull time.
+Latest integrated pull: **2026-08-14** (source `updated_at` 2026-08-14T22:34:54Z; cron pulled 2026-08-17T00:04:38Z; 100 tickers sourced, 84 with HV, 15,865 eligible contracts).
