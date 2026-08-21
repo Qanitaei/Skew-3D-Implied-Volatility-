@@ -54,11 +54,17 @@ FILTER_NOTE = (
 )
 PRICING_NOTE = (
     "edge=(mark-bs)/bs; BS=BSM(HV,r=4%,T=dte/365.25); "
-    "HV from matrix/prior enriched export/OHLCV 252d close-to-close"
+    "HV from matrix/prior SKEW_IV hv-by-symbol/prior enriched export/OHLCV 252d"
 )
 BS_RISK_FREE = 0.04
 BS_DAYCOUNT = 365.25
 OHLCV_NAMESPACE_ID = "1e38a8deb82e419c9e3147ce5c971e4a"
+SKEW_IV_NAMESPACE_ID = "6090feecea284af3a313401f8d0ef0a9"
+OHLCV_DAILY_KEYS = (
+    "ohlcv/1d_rth",
+    "ohlcv/daily_1y_daily",
+    "ohlcv/1d",
+)
 _SSL_CTX = ssl.create_default_context(cafile=certifi.where())
 
 
@@ -362,9 +368,13 @@ def hv_from_ohlcv(
     namespace_id: str = OHLCV_NAMESPACE_ID,
 ) -> float | None:
     """252-day close-to-close HV from OHLCV daily bars when available."""
-    daily = kv_get_json(
-        account_id, namespace_id, token, f"{symbol}/ohlcv/daily_1y_daily"
-    )
+    daily = None
+    used_key = None
+    for suffix in OHLCV_DAILY_KEYS:
+        daily = kv_get_json(account_id, namespace_id, token, f"{symbol}/{suffix}")
+        if daily and (daily.get("bars") or []):
+            used_key = suffix
+            break
     if not daily:
         return None
     closes = [
@@ -381,7 +391,53 @@ def hv_from_ohlcv(
     if not rets:
         return None
     var = sum(r * r for r in rets) / len(rets)
+    _ = used_key  # retained for debugging via callers if needed
     return math.sqrt(var) * math.sqrt(252.0)
+
+
+def resolve_prior_hv_map_date(
+    account_id: str,
+    token: str,
+    as_of: str,
+    *,
+    namespace_id: str = SKEW_IV_NAMESPACE_ID,
+) -> str | None:
+    """Newest SKEW_IV as_of/{date}/hv-by-symbol before as_of."""
+    keys = list_keys(account_id, namespace_id, token, prefix="as_of/")
+    dates = sorted(
+        {
+            m.group(1)
+            for key in keys
+            for m in [re.match(r"as_of/(\d{4}-\d{2}-\d{2})/hv-by-symbol$", key)]
+            if m and m.group(1) < as_of
+        },
+        reverse=True,
+    )
+    return dates[0] if dates else None
+
+
+def load_prior_hv_map(
+    account_id: str,
+    token: str,
+    as_of: str,
+    *,
+    namespace_id: str = SKEW_IV_NAMESPACE_ID,
+) -> tuple[dict[str, float], str | None]:
+    """Load prior derived HV map from SKEW_IV."""
+    prior_date = resolve_prior_hv_map_date(
+        account_id, token, as_of, namespace_id=namespace_id
+    )
+    if not prior_date:
+        return {}, None
+    payload = kv_get_json(
+        account_id, namespace_id, token, f"as_of/{prior_date}/hv-by-symbol"
+    )
+    raw = (payload or {}).get("hv_by_symbol") or {}
+    out: dict[str, float] = {}
+    for symbol, value in raw.items():
+        if isinstance(value, (int, float)) and value > 0:
+            out[str(symbol).upper()] = float(value)
+    return out, prior_date
 
 
 def resolve_prior_enriched_date(
@@ -421,7 +477,14 @@ def build_hv_by_symbol(
     symbols: list[str],
     matrices: dict[str, dict],
 ) -> tuple[dict[str, float], dict[str, str]]:
-    """Resolve per-symbol HV for BS enrichment when the latest export omits it."""
+    """Resolve per-symbol HV for BS enrichment when the latest export omits it.
+
+    Fallback chain:
+      1. HV field on the current source matrix
+      2. Prior SKEW_IV ``as_of/{date}/hv-by-symbol`` map
+      3. Prior Alpaca source matrix with HV enrichment
+      4. OHLCV 252d close-to-close (``1d_rth`` / legacy daily keys)
+    """
     hv_by_symbol: dict[str, float] = {}
     hv_source: dict[str, str] = {}
 
@@ -432,13 +495,30 @@ def build_hv_by_symbol(
             hv_source[symbol] = "matrix"
 
     missing = [s for s in symbols if s not in hv_by_symbol]
+    prior_map, prior_map_date = ({}, None)
+    if missing:
+        prior_map, prior_map_date = load_prior_hv_map(account_id, token, as_of)
+        print(
+            f"HV missing for {len(missing)} symbols; "
+            f"prior hv-by-symbol date={prior_map_date} "
+            f"(symbols={len(prior_map)})",
+            flush=True,
+        )
+        for symbol in missing:
+            hv = prior_map.get(symbol)
+            if hv is not None:
+                hv_by_symbol[symbol] = hv
+                hv_source[symbol] = f"prior_map:{prior_map_date}"
+
+    missing = [s for s in symbols if s not in hv_by_symbol]
     prior_date = None
     if missing:
         prior_date = resolve_prior_enriched_date(
             account_id, namespace_id, token, as_of
         )
         print(
-            f"HV missing for {len(missing)} symbols; prior enriched date={prior_date}",
+            f"HV still missing for {len(missing)} symbols; "
+            f"prior enriched source date={prior_date}",
             flush=True,
         )
 
