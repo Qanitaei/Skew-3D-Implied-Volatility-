@@ -305,7 +305,14 @@ export const DISPLAY_HTML = `<!DOCTYPE html>
     </footer>
   </div>
   <script>
-    const state = { side: "C", bias: "both", matrix: null, asOf: "latest" };
+    const state = {
+      side: "C",
+      bias: "both",
+      matrix: null,
+      asOf: "latest",
+      universeOver: [],
+      universeUnder: [],
+    };
 
     const $ = (id) => document.getElementById(id);
     const statusEl = $("status");
@@ -381,22 +388,32 @@ export const DISPLAY_HTML = `<!DOCTYPE html>
 
     function renderRanks(matrix, universeOver, universeUnder) {
       const sym = matrix?.symbol || "";
-      const localOver = (matrix?.overpriced || []).map((r) => ({ ...r, symbol: sym }));
-      const localUnder = (matrix?.underpriced || []).map((r) => ({ ...r, symbol: sym }));
+      const side = state.side;
+      const sideLabel = side === "P" ? "puts" : "calls";
+      const matchSide = (r) => !r.cp || r.cp === side;
+      const localOver = (matrix?.overpriced || [])
+        .filter(matchSide)
+        .map((r) => ({ ...r, symbol: sym }));
+      const localUnder = (matrix?.underpriced || [])
+        .filter(matchSide)
+        .map((r) => ({ ...r, symbol: sym }));
+      const uniOver = (universeOver || []).filter(matchSide);
+      const uniUnder = (universeUnder || []).filter(matchSide);
       // Prefer selected-ticker strike/expiration leaders; fall back to universe tables.
-      const over = localOver.length ? localOver : (universeOver || []);
-      const under = localUnder.length ? localUnder : (universeUnder || []);
-      $("overTitle").textContent = localOver.length ? (sym + " overpriced") : "Top overpriced";
-      $("underTitle").textContent = localUnder.length ? (sym + " underpriced") : "Top underpriced";
-      $("overSub").textContent = localOver.length
-        ? "By expiration × strike for " + sym
-        : "Universe leaders";
-      $("underSub").textContent = localUnder.length
-        ? "By expiration × strike for " + sym
-        : "Universe leaders";
+      const over = localOver.length ? localOver : uniOver;
+      const under = localUnder.length ? localUnder : uniUnder;
+      const local = Boolean(localOver.length || localUnder.length);
+      $("overTitle").textContent = local ? (sym + " overpriced") : "Top overpriced";
+      $("underTitle").textContent = local ? (sym + " underpriced") : "Top underpriced";
+      $("overSub").textContent = local
+        ? "By expiration × strike · " + sideLabel
+        : "Universe leaders · " + sideLabel;
+      $("underSub").textContent = local
+        ? "By expiration × strike · " + sideLabel
+        : "Universe leaders · " + sideLabel;
 
       const mk = (rows, cls) => {
-        if (!rows || !rows.length) return "<p style='padding:1rem;color:var(--muted)'>None</p>";
+        if (!rows || !rows.length) return "<p style='padding:1rem;color:var(--muted)'>None for " + sideLabel + "</p>";
         let html = "<table class='rank'><thead><tr><th>Sym</th><th>Exp</th><th>K</th><th>CP</th><th>Edge</th><th>Mark</th><th>BS</th></tr></thead><tbody>";
         for (const r of rows.slice(0, 25)) {
           html += "<tr>" +
@@ -452,8 +469,10 @@ export const DISPLAY_HTML = `<!DOCTYPE html>
         ]);
         if (!matrix.success) throw new Error(matrix.error || "Matrix failed");
         state.matrix = matrix;
+        state.universeOver = over.contracts || [];
+        state.universeUnder = under.contracts || [];
         renderMatrix(matrix);
-        renderRanks(matrix, over.contracts || [], under.contracts || []);
+        renderRanks(matrix, state.universeOver, state.universeUnder);
         setStatus("Live from " + (matrix.source_key || "KV") + " · " + (matrix.eligible || 0) + " eligible contracts");
       } catch (err) {
         setStatus(String(err.message || err), true);
@@ -472,6 +491,7 @@ export const DISPLAY_HTML = `<!DOCTYPE html>
       state.side = btn.dataset.side;
       [...$("sideSeg").querySelectorAll("button")].forEach((b) => b.classList.toggle("active", b === btn));
       renderMatrix(state.matrix);
+      renderRanks(state.matrix, state.universeOver, state.universeUnder);
     });
     $("biasSeg").addEventListener("click", (e) => {
       const btn = e.target.closest("button[data-bias]");
