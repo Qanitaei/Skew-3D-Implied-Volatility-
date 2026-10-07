@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Skew 3D Implied Volatility API",
-    "description": "3D implied-volatility surface and mispricing research data from Cloudflare KV namespace Skew-3D-Implied-Volatility.\n\nPrimary pattern:\n- `GET /v1/as_of/{date}` — day summary (eligible contracts, ticker bias)\n- `GET /v1/as_of/{date}/surface/{symbol}` — DTE × moneyness IV surface grid\n- `GET /v1/as_of/{date}/overpriced` — mark ≫ HV Black-Scholes contracts\n- `GET /v1/as_of/{date}/underpriced` — mark ≪ HV Black-Scholes contracts\n- `GET /v1/as_of/latest/...` — latest as-of date aliases\n\nImport OpenAPI: https://skew-3d-implied-volatility-shiny-darkness-9ebb.2s6m8rz8fc.workers.dev/openapi.json",
+    "description": "3D implied-volatility surface and mispricing research data.\n\nSource options matrices: Cloudflare KV `alpaca-options-matrix-backup`.\nDerived rankings / surfaces: `Skew-3D-Implied-Volatility`.\n\nPrimary pattern:\n- `GET /display` — interactive over/underpriced expiration × strike matrices\n- `GET /v1/as_of/{date}/matrix/{symbol}` — live matrix from latest Alpaca pull\n- `GET /v1/as_of/{date}/overpriced` — mark ≫ HV Black-Scholes contracts\n- `GET /v1/as_of/{date}/underpriced` — mark ≪ HV Black-Scholes contracts\n- `GET /v1/as_of/{date}/surface/{symbol}` — DTE × moneyness IV surface grid\n- `GET /v1/as_of/latest/...` — latest as-of date aliases\n\nImport OpenAPI: https://skew-3d-implied-volatility-shiny-darkness-9ebb.2s6m8rz8fc.workers.dev/openapi.json",
     "version": "1.0.0",
     "contact": {
       "name": "skew-3d-implied-volatility-shiny-darkness-9ebb",
@@ -18,18 +18,35 @@
   "tags": [
     { "name": "meta", "description": "Health, OpenAPI, retrieval catalog, KV keys" },
     { "name": "catalog", "description": "As-of dates and surface tickers" },
-    { "name": "surface", "description": "3D IV surface grids and mispricing tables" }
+    { "name": "surface", "description": "3D IV surface grids and mispricing tables" },
+    { "name": "display", "description": "HTML matrix display" }
   ],
   "paths": {
     "/": {
       "get": {
         "tags": ["meta"],
-        "summary": "OpenAPI root",
+        "summary": "OpenAPI root (HTML display when Accept: text/html)",
         "operationId": "getOpenApiRoot",
         "responses": {
           "200": {
-            "description": "OpenAPI 3.0 document",
-            "content": { "application/json": { "schema": { "type": "object" } } }
+            "description": "OpenAPI 3.0 document or HTML display",
+            "content": {
+              "application/json": { "schema": { "type": "object" } },
+              "text/html": { "schema": { "type": "string" } }
+            }
+          }
+        }
+      }
+    },
+    "/display": {
+      "get": {
+        "tags": ["display"],
+        "summary": "Interactive overpriced / underpriced options matrix UI",
+        "operationId": "getDisplay",
+        "responses": {
+          "200": {
+            "description": "HTML application",
+            "content": { "text/html": { "schema": { "type": "string" } } }
           }
         }
       }
@@ -189,6 +206,35 @@
             }
           },
           "404": { "description": "Missing surface" }
+        }
+      }
+    },
+    "/v1/as_of/{date}/matrix/{symbol}": {
+      "get": {
+        "tags": ["surface"],
+        "summary": "Expiration × strike mispricing matrix for one ticker",
+        "description": "Built from the latest `{SYMBOL}/options_matrix/{date}` pull in alpaca-options-matrix-backup. Rows are strikes, columns are expirations, values are edge % = (mark-bs)/bs.",
+        "operationId": "getMispricingMatrix",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Call/put grids plus overpriced and underpriced contract lists",
+            "content": { "application/json": { "schema": { "type": "object" } } }
+          },
+          "404": { "description": "Missing matrix" }
         }
       }
     },
