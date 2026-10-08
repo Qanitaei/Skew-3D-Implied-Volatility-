@@ -5,3 +5,7 @@ compatibility_date = "2024-11-01"
 [[kv_namespaces]]
 binding = "SKEW_IV"
 id = "6090feecea284af3a313401f8d0ef0a9"
+
+[[kv_namespaces]]
+binding = "ALPACA_MATRIX"
+id = "e290dbe341d3496aac5e47d17042b3e5"
