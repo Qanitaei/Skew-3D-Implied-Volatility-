@@ -6,3 +6,5 @@ node_modules/
 *.log
 .wrangler/
 dist/
+data/matrices/
+data/skew_kv_upload_*.json
