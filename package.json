@@ -2,8 +2,10 @@
   "name": "skew-3d-implied-volatility",
   "private": true,
   "scripts": {
+    "pull": "python3 scripts/pull_latest_options_matrix.py",
     "deploy": "python3 scripts/deploy_worker_skew_3d_iv.py",
     "upload": "python3 scripts/upload_kv_skew_3d_iv.py",
+    "sync": "python3 scripts/pull_latest_options_matrix.py && python3 scripts/upload_kv_skew_3d_iv.py",
     "dev": "wrangler dev --port 8791 --ip 127.0.0.1",
     "tail": "wrangler tail"
   },
