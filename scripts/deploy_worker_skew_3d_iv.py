@@ -23,6 +23,11 @@ NAMESPACE_ID = os.getenv(
     "SKEW_IV_NAMESPACE_ID",
     "6090feecea284af3a313401f8d0ef0a9",
 )
+SOURCE_NAMESPACE = os.getenv("ALPACA_MATRIX_NAMESPACE_NAME", "alpaca-options-matrix-backup")
+SOURCE_NAMESPACE_ID = os.getenv(
+    "ALPACA_MATRIX_NAMESPACE_ID",
+    "e290dbe341d3496aac5e47d17042b3e5",
+)
 WORKER_URL = os.getenv(
     "SKEW_IV_WORKER_URL",
     f"https://{SCRIPT_NAME}.2s6m8rz8fc.workers.dev",
@@ -33,12 +38,20 @@ KV_BINDINGS = [
         "name": "SKEW_IV",
         "namespace_id": NAMESPACE_ID,
     },
+    {
+        "type": "kv_namespace",
+        "name": "ALPACA_MATRIX",
+        "namespace_id": SOURCE_NAMESPACE_ID,
+    },
 ]
 _SSL_CTX = ssl.create_default_context(cafile=certifi.where())
 DEFAULT_CREDENTIALS = Path("/Users/ruslantkach/Desktop/economic-calendar/.cloudflare-credentials.json")
 
 
 def _credentials() -> tuple[str, str]:
+    from dotenv import load_dotenv
+
+    load_dotenv(ROOT / ".env")
     if DEFAULT_CREDENTIALS.exists():
         data = json.loads(DEFAULT_CREDENTIALS.read_text(encoding="utf-8"))
         return data["account_id"], data["api_token"]
@@ -46,14 +59,23 @@ def _credentials() -> tuple[str, str]:
     api_token = os.getenv("CLOUDFLARE_API_TOKEN", "")
     if not account_id or not api_token:
         raise SystemExit("Missing Cloudflare credentials.")
-    return account_id, api_token
+    # Allow YAML-prefixed secrets like "\\t- cfat_..."
+    import re
+
+    match = re.search(r"cfat_[A-Za-z0-9_\-]+", api_token)
+    if match:
+        api_token = match.group(0)
+    return account_id.strip().lower(), api_token.strip()
 
 
 def _bundle_worker() -> str:
     index_src = (WORKER_DIR / "src" / "index.js").read_text(encoding="utf-8")
+    display_src = (WORKER_DIR / "src" / "display.js").read_text(encoding="utf-8")
     openapi = json.loads((WORKER_DIR / "openapi.json").read_text(encoding="utf-8"))
     openapi["info"]["contact"] = {"name": SCRIPT_NAME, "url": WORKER_URL}
     openapi["servers"] = [{"url": WORKER_URL, "description": "Workers KV production"}]
+    # Inline display module export.
+    display_assign = display_src.replace("export const DISPLAY_HTML", "const DISPLAY_HTML")
     index_src = (
         index_src.replace(
             'const NAMESPACE_NAME = "Skew-3D-Implied-Volatility";',
@@ -64,13 +86,24 @@ def _bundle_worker() -> str:
             f'const NAMESPACE_ID = "{NAMESPACE_ID}";',
         )
         .replace(
+            'const SOURCE_NAMESPACE = "alpaca-options-matrix-backup";',
+            f'const SOURCE_NAMESPACE = "{SOURCE_NAMESPACE}";',
+        )
+        .replace(
+            'const SOURCE_NAMESPACE_ID = "e290dbe341d3496aac5e47d17042b3e5";',
+            f'const SOURCE_NAMESPACE_ID = "{SOURCE_NAMESPACE_ID}";',
+        )
+        .replace(
             'const WORKER_URL =\n  "https://skew-3d-implied-volatility-shiny-darkness-9ebb.2s6m8rz8fc.workers.dev";',
             f'const WORKER_URL =\n  "{WORKER_URL}";',
         )
     )
-    return index_src.replace(
-        'import OPENAPI from "../openapi.json";\n',
-        f"const OPENAPI = {json.dumps(openapi, separators=(',', ':'))};\n",
+    index_src = index_src.replace('import OPENAPI from "../openapi.json";\n', "")
+    index_src = index_src.replace('import { DISPLAY_HTML } from "./display.js";\n', "")
+    return (
+        f"const OPENAPI = {json.dumps(openapi, separators=(',', ':'))};\n"
+        f"{display_assign}\n"
+        f"{index_src}"
     )
 
 
@@ -146,9 +179,12 @@ def deploy() -> None:
                 "success": True,
                 "worker": SCRIPT_NAME,
                 "url": WORKER_URL,
+                "display": f"{WORKER_URL}/display",
                 "namespace": NAMESPACE_NAME,
                 "namespace_id": NAMESPACE_ID,
-                "binding": "SKEW_IV",
+                "source_namespace": SOURCE_NAMESPACE,
+                "source_namespace_id": SOURCE_NAMESPACE_ID,
+                "bindings": ["SKEW_IV", "ALPACA_MATRIX"],
                 "openapi": f"{WORKER_URL}/openapi.json",
             },
             indent=2,
